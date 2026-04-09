@@ -152,8 +152,8 @@ def normalise(raw: dict) -> dict | None:
         },
         "date": {
             "display": date_str or None,
-            "year_start": parse_year(raw.get("objectBeginDate", str(raw.get("objectBeginDate", "")))),
-            "year_end": parse_year(raw.get("objectEndDate", str(raw.get("objectEndDate", "")))),
+            "year_start": parse_year(str(raw.get("objectBeginDate") or "")),
+            "year_end": parse_year(str(raw.get("objectEndDate") or "")),
         },
         "classification": {
             "department": raw.get("department") or None,
