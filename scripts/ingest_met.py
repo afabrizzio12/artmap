@@ -42,7 +42,7 @@ INSTITUTION = {
 }
 
 # Rate limit: Met allows 80 req/s. We stay well under.
-REQUEST_DELAY = 0.05  # seconds between requests
+REQUEST_DELAY = 1.0  # seconds between requests (Met enforces ~80 req/min in practice)
 
 OUTPUT_DIR = Path(__file__).parent.parent / "output" / "met"
 RAW_DIR = OUTPUT_DIR / "objects"
@@ -71,13 +71,30 @@ def get(endpoint: str, params: dict = None) -> dict:
 
 
 def fetch_object_ids(department_id: int = None) -> list[int]:
-    """Return all object IDs with public domain images."""
-    params = {"hasImages": "true"}
+    """Return object IDs by department.
+
+    The /objects endpoint ignores isPublicDomain/hasImages filters and always
+    returns all 500k+ IDs, most of which 403 when fetched individually.
+    Fetching per department returns clean, accessible IDs.
+    """
     if department_id:
-        params["departmentIds"] = department_id
-    # The /objects endpoint returns all valid IDs
-    data = get("objects", params)
-    return data.get("objectIDs") or []
+        data = get("objects", {"departmentIds": department_id, "hasImages": "true"})
+        return data.get("objectIDs") or []
+
+    # Collect IDs across all departments
+    r = session.get(f"{BASE_URL}/departments", timeout=30)
+    r.raise_for_status()
+    departments = r.json().get("departments", [])
+    all_ids: list[int] = []
+    seen: set[int] = set()
+    for dept in departments:
+        data = get("objects", {"departmentIds": dept["departmentId"], "hasImages": "true"})
+        for oid in (data.get("objectIDs") or []):
+            if oid not in seen:
+                seen.add(oid)
+                all_ids.append(oid)
+        time.sleep(REQUEST_DELAY)
+    return all_ids
 
 
 def fetch_object(object_id: int) -> dict:
