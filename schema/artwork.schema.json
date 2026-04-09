@@ -1,0 +1,145 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ArtMap Artwork",
+  "description": "Unified schema for artworks across all ArtMap data sources",
+  "type": "object",
+  "required": ["id", "source", "title", "institution"],
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Globally unique ID: {source}:{source_id}",
+      "example": "met:436535"
+    },
+    "source": {
+      "type": "string",
+      "enum": ["met", "rijksmuseum", "aic", "harvard"],
+      "description": "Data source identifier"
+    },
+    "source_id": {
+      "type": ["string", "integer"],
+      "description": "Original object ID from source API"
+    },
+    "source_url": {
+      "type": "string",
+      "format": "uri",
+      "description": "Canonical URL on source institution website"
+    },
+
+    "title": {
+      "type": "string"
+    },
+    "title_alt": {
+      "type": ["string", "null"],
+      "description": "Alternate or translated title"
+    },
+
+    "artist": {
+      "type": "object",
+      "properties": {
+        "name": { "type": ["string", "null"] },
+        "display_name": { "type": ["string", "null"], "description": "As shown to user, e.g. 'Vincent van Gogh'" },
+        "birth_year": { "type": ["integer", "null"] },
+        "death_year": { "type": ["integer", "null"] },
+        "nationality": { "type": ["string", "null"] },
+        "wikidata_url": { "type": ["string", "null"] },
+        "ulan_url": { "type": ["string", "null"], "description": "Getty ULAN URL" }
+      }
+    },
+
+    "date": {
+      "type": "object",
+      "properties": {
+        "display": { "type": ["string", "null"], "description": "Human-readable date, e.g. '1889' or 'ca. 1650–1660'" },
+        "year_start": { "type": ["integer", "null"] },
+        "year_end": { "type": ["integer", "null"] }
+      }
+    },
+
+    "classification": {
+      "type": "object",
+      "properties": {
+        "department": { "type": ["string", "null"], "description": "Source institution department" },
+        "type": { "type": ["string", "null"], "description": "e.g. Painting, Sculpture, Drawing" },
+        "medium": { "type": ["string", "null"], "description": "e.g. Oil on canvas" },
+        "culture": { "type": ["string", "null"], "description": "e.g. French, Japanese" },
+        "period": { "type": ["string", "null"], "description": "e.g. Renaissance, Baroque, Modern" },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "term": { "type": "string" },
+              "aat_url": { "type": ["string", "null"] },
+              "wikidata_url": { "type": ["string", "null"] }
+            }
+          }
+        }
+      }
+    },
+
+    "institution": {
+      "type": "object",
+      "required": ["id", "name"],
+      "properties": {
+        "id": { "type": "string", "description": "e.g. 'met', 'rijksmuseum'" },
+        "name": { "type": "string", "description": "e.g. 'The Metropolitan Museum of Art'" },
+        "city": { "type": "string" },
+        "country": { "type": "string" },
+        "lat": { "type": ["number", "null"] },
+        "lng": { "type": ["number", "null"] },
+        "gallery_number": { "type": ["string", "null"] },
+        "is_on_view": { "type": ["boolean", "null"] }
+      }
+    },
+
+    "geo_origin": {
+      "description": "Geographic origin of the artwork itself (distinct from institution location)",
+      "type": "object",
+      "properties": {
+        "country": { "type": ["string", "null"] },
+        "region": { "type": ["string", "null"] },
+        "city": { "type": ["string", "null"] },
+        "lat": { "type": ["number", "null"] },
+        "lng": { "type": ["number", "null"] }
+      }
+    },
+
+    "images": {
+      "type": "object",
+      "properties": {
+        "primary": { "type": ["string", "null"], "format": "uri" },
+        "primary_small": { "type": ["string", "null"], "format": "uri" },
+        "additional": {
+          "type": "array",
+          "items": { "type": "string", "format": "uri" }
+        }
+      }
+    },
+
+    "dimensions": {
+      "type": ["string", "null"],
+      "description": "Human-readable dimensions string from source"
+    },
+
+    "is_public_domain": {
+      "type": "boolean"
+    },
+    "license": {
+      "type": ["string", "null"],
+      "description": "e.g. 'CC0', 'CC BY 4.0'"
+    },
+
+    "wikidata_url": { "type": ["string", "null"] },
+
+    "ingested_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 timestamp of ingestion"
+    },
+    "source_updated_at": {
+      "type": ["string", "null"],
+      "format": "date-time",
+      "description": "Last metadata update timestamp from source"
+    }
+  }
+}
