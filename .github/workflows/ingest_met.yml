@@ -2,16 +2,16 @@ name: Ingest Met Museum
 
 on:
   schedule:
-    # Weekly on Sunday at 02:00 UTC
-    - cron: "0 2 * * 0"
+    # Daily at 02:00 UTC — processes 10,000 IDs per run, stops automatically when complete
+    - cron: "0 2 * * *"
   workflow_dispatch:
     inputs:
-      limit:
-        description: "Max objects to fetch (leave empty for full run)"
+      daily_limit:
+        description: "IDs to process this run (default: 10000)"
         required: false
-        default: ""
+        default: "10000"
       department:
-        description: "Department ID to filter (leave empty for all)"
+        description: "Department ID to filter (leave empty for all departments)"
         required: false
         default: ""
 
@@ -28,30 +28,55 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Check if ingestion is already complete
+        id: check
+        run: |
+          DONE=$(python3 -c "
+          import json, os
+          f = 'output/met/ingest_state.json'
+          print('true' if os.path.exists(f) and json.load(open(f)).get('completed') else 'false')
+          " 2>/dev/null || echo "false")
+          echo "completed=$DONE" >> $GITHUB_OUTPUT
+          echo "Ingestion already completed: $DONE"
+
       - name: Set up Python
+        if: steps.check.outputs.completed == 'false'
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
           cache: "pip"
 
       - name: Install dependencies
+        if: steps.check.outputs.completed == 'false'
         run: pip install -r scripts/requirements.txt
 
       - name: Run ingestion
+        if: steps.check.outputs.completed == 'false'
         run: |
-          ARGS="--resume"
-          if [ -n "${{ github.event.inputs.limit }}" ]; then
-            ARGS="$ARGS --limit ${{ github.event.inputs.limit }}"
-          fi
+          LIMIT="${{ github.event.inputs.daily_limit || '10000' }}"
+          ARGS="--daily-limit $LIMIT"
           if [ -n "${{ github.event.inputs.department }}" ]; then
             ARGS="$ARGS --department ${{ github.event.inputs.department }}"
           fi
           python scripts/ingest_met.py $ARGS
 
       - name: Commit updated data
+        if: steps.check.outputs.completed == 'false'
         run: |
           git config user.name "artmap-bot"
           git config user.email "artmap-bot@users.noreply.github.com"
-          git add output/met/
-          git diff --cached --quiet || git commit -m "chore: update Met data $(date -u +'%Y-%m-%d')"
+          git add output/met/artworks.ndjson output/met/artworks.json output/met/ingest_state.json
+          git diff --cached --quiet || git commit -m "chore: Met ingest $(date -u +'%Y-%m-%d')"
           git push
+
+      - name: Summary
+        if: steps.check.outputs.completed == 'false'
+        run: |
+          python3 -c "
+          import json
+          s = json.load(open('output/met/ingest_state.json'))
+          print(f\"Artworks so far : {s.get('total_artworks', 0)}\")
+          print(f\"Progress        : {s['offset']} / {s['total_available']} IDs ({100*s['offset']//s['total_available']}%)\")
+          if s.get('completed'):
+              print('Ingestion COMPLETE - Met Museum fully ingested')
+          "

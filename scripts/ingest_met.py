@@ -5,15 +5,17 @@ Fetches artworks from the Met Collection API and normalises them
 to the ArtMap unified schema.
 
 Usage:
-    python ingest_met.py                        # full ingestion (all public domain objects)
+    python ingest_met.py                        # full ingestion (all departments)
     python ingest_met.py --limit 500            # cap at N objects (dev/test)
     python ingest_met.py --department 11        # single department only
+    python ingest_met.py --daily-limit 10000    # incremental daily run (reads/writes state file)
     python ingest_met.py --resume               # skip already-fetched object IDs
 
 Output:
-    output/met/objects/        raw JSON per object (one file per ID)
-    output/met/artworks.json   all normalised artworks as JSON array
-    output/met/artworks.ndjson normalised artworks as newline-delimited JSON
+    output/met/objects/           raw JSON per object (one file per ID)
+    output/met/artworks.ndjson    normalised artworks, newline-delimited (append across daily runs)
+    output/met/artworks.json      normalised artworks as JSON array (written on first run only)
+    output/met/ingest_state.json  progress state for incremental daily runs
 """
 
 import argparse
@@ -41,11 +43,12 @@ INSTITUTION = {
     "lng": -73.9632,
 }
 
-# Rate limit: Met allows 80 req/s. We stay well under.
-REQUEST_DELAY = 1.0  # seconds between requests (Met enforces ~80 req/min in practice)
+# Rate limit: Met enforces ~80 req/min in practice despite docs stating 80 req/s.
+REQUEST_DELAY = 1.0  # seconds between requests
 
 OUTPUT_DIR = Path(__file__).parent.parent / "output" / "met"
 RAW_DIR = OUTPUT_DIR / "objects"
+STATE_FILE = OUTPUT_DIR / "ingest_state.json"
 
 logging.basicConfig(
     level=logging.INFO,
@@ -60,7 +63,7 @@ log = logging.getLogger(__name__)
 # ---------------------------------------------------------------------------
 
 session = requests.Session()
-session.headers.update({"User-Agent": "ArtMap/0.1 (github.com/your-org/artmap-data)"})
+session.headers.update({"User-Agent": "ArtMap/0.1 (github.com/afabrizzio12/artmap)"})
 
 
 def get(endpoint: str, params: dict = None) -> dict:
@@ -102,6 +105,22 @@ def fetch_object(object_id: int) -> dict:
 
 
 # ---------------------------------------------------------------------------
+# State helpers (for incremental daily runs)
+# ---------------------------------------------------------------------------
+
+def load_state() -> dict:
+    if STATE_FILE.exists():
+        with open(STATE_FILE) as f:
+            return json.load(f)
+    return {}
+
+
+def save_state(state: dict) -> None:
+    with open(STATE_FILE, "w") as f:
+        json.dump(state, f, indent=2)
+
+
+# ---------------------------------------------------------------------------
 # Normalisation
 # ---------------------------------------------------------------------------
 
@@ -120,7 +139,6 @@ def normalise(raw: dict) -> dict | None:
     Returns None if the object should be skipped (e.g. not public domain,
     no image, or missing required fields).
     """
-    # Only keep public domain works with at least a primary image
     if not raw.get("isPublicDomain"):
         return None
     if not raw.get("primaryImage"):
@@ -131,7 +149,6 @@ def normalise(raw: dict) -> dict | None:
     object_id = raw["objectID"]
     date_str = raw.get("objectDate", "")
 
-    # Resolve geo_origin from Met's granular geo fields
     geo_fields = {
         "country": raw.get("country") or raw.get("culture"),
         "region": raw.get("region") or raw.get("subregion"),
@@ -139,7 +156,6 @@ def normalise(raw: dict) -> dict | None:
         "lat": None,
         "lng": None,
     }
-    # Blank strings → None
     geo_origin = {k: v if v else None for k, v in geo_fields.items()}
 
     tags = [
@@ -206,7 +222,8 @@ def normalise(raw: dict) -> dict | None:
 
 def main():
     parser = argparse.ArgumentParser(description="Ingest Met Museum artworks into ArtMap schema")
-    parser.add_argument("--limit", type=int, default=None, help="Max objects to process")
+    parser.add_argument("--limit", type=int, default=None, help="Max objects to process (dev/test)")
+    parser.add_argument("--daily-limit", type=int, default=None, help="IDs to process per run; reads/writes ingest_state.json to continue from last offset")
     parser.add_argument("--department", type=int, default=None, help="Filter by department ID")
     parser.add_argument("--resume", action="store_true", help="Skip already-fetched raw objects")
     args = parser.parse_args()
@@ -214,16 +231,33 @@ def main():
     RAW_DIR.mkdir(parents=True, exist_ok=True)
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
-    # 1. Fetch object IDs
+    # 1. Fetch all object IDs for this source
     log.info("Fetching object IDs from Met API...")
-    object_ids = fetch_object_ids(department_id=args.department)
-    log.info(f"Total object IDs returned: {len(object_ids)}")
+    all_ids = fetch_object_ids(department_id=args.department)
+    total_available = len(all_ids)
+    log.info(f"Total IDs available: {total_available}")
 
-    if args.limit:
-        object_ids = object_ids[: args.limit]
-        log.info(f"Limiting to {args.limit} objects")
+    # 2. Determine offset and slice for this run
+    state = {}
+    offset = 0
 
-    # 2. Fetch + normalise
+    if args.daily_limit:
+        state = load_state()
+        offset = state.get("offset", 0)
+        if offset >= total_available:
+            log.info("✅ All IDs have already been processed. Nothing to do.")
+            return
+        log.info(f"Incremental mode: resuming from offset {offset} / {total_available}")
+
+    object_ids = all_ids[offset:]
+
+    effective_limit = args.daily_limit or args.limit
+    if effective_limit:
+        object_ids = object_ids[:effective_limit]
+
+    log.info(f"Processing {len(object_ids)} IDs this run")
+
+    # 3. Fetch + normalise
     artworks = []
     skipped = 0
     errors = 0
@@ -231,7 +265,6 @@ def main():
     for i, oid in enumerate(object_ids):
         raw_path = RAW_DIR / f"{oid}.json"
 
-        # Resume: use cached raw file if present
         if args.resume and raw_path.exists():
             with open(raw_path) as f:
                 raw = json.load(f)
@@ -255,20 +288,48 @@ def main():
         if (i + 1) % 500 == 0:
             log.info(f"Progress: {i+1}/{len(object_ids)} — {len(artworks)} kept, {skipped} skipped, {errors} errors")
 
-    # 3. Write outputs
-    artworks_path = OUTPUT_DIR / "artworks.json"
-    with open(artworks_path, "w") as f:
-        json.dump(artworks, f, indent=2)
-
+    # 4. Write outputs
     ndjson_path = OUTPUT_DIR / "artworks.ndjson"
-    with open(ndjson_path, "w") as f:
-        for artwork in artworks:
-            f.write(json.dumps(artwork) + "\n")
+    is_first_run = (offset == 0)
 
-    log.info(
-        f"\nDone. {len(artworks)} artworks written to {artworks_path}\n"
-        f"Skipped: {skipped} | Errors: {errors}"
-    )
+    if is_first_run:
+        # First run: write fresh files
+        artworks_path = OUTPUT_DIR / "artworks.json"
+        with open(artworks_path, "w") as f:
+            json.dump(artworks, f, indent=2)
+        with open(ndjson_path, "w") as f:
+            for artwork in artworks:
+                f.write(json.dumps(artwork) + "\n")
+        log.info(f"Written {len(artworks)} artworks to {artworks_path}")
+    else:
+        # Subsequent runs: append to ndjson
+        with open(ndjson_path, "a") as f:
+            for artwork in artworks:
+                f.write(json.dumps(artwork) + "\n")
+        log.info(f"Appended {len(artworks)} artworks to {ndjson_path}")
+
+    # 5. Update state for incremental runs
+    if args.daily_limit:
+        new_offset = offset + len(object_ids)
+        completed = new_offset >= total_available
+        new_total = state.get("total_artworks", 0) + len(artworks)
+
+        save_state({
+            "offset": new_offset,
+            "total_available": total_available,
+            "total_artworks": new_total,
+            "completed": completed,
+            "last_run": datetime.now(timezone.utc).isoformat(),
+        })
+
+        log.info(f"\nState saved: {new_total} total artworks | offset {new_offset}/{total_available}")
+        if completed:
+            log.info("🎉 All Met Museum IDs have been processed. Ingestion COMPLETE.")
+        else:
+            remaining_days = -(-( total_available - new_offset) // args.daily_limit)  # ceiling div
+            log.info(f"Estimated {remaining_days} more daily run(s) to complete.")
+    else:
+        log.info(f"\nDone. {len(artworks)} artworks | Skipped: {skipped} | Errors: {errors}")
 
 
 if __name__ == "__main__":
