@@ -257,10 +257,41 @@ def main():
 
     log.info(f"Processing {len(object_ids)} IDs this run")
 
-    # 3. Fetch + normalise
-    artworks = []
+    # 3. Fetch + normalise, with checkpoints every 2000 IDs in daily mode
+    CHECKPOINT_EVERY = 2000
+
+    ndjson_path = OUTPUT_DIR / "artworks.ndjson"
+    is_first_run = (offset == 0)
+
+    artworks_batch = []   # artworks since last checkpoint
+    written_count = 0     # total artworks written to disk this run
     skipped = 0
     errors = 0
+
+    def flush_checkpoint(ids_done: int) -> None:
+        """Append current batch to ndjson and save state. Safe to call mid-run."""
+        nonlocal written_count, artworks_batch
+
+        if artworks_batch:
+            mode = "w" if (is_first_run and written_count == 0) else "a"
+            with open(ndjson_path, mode) as f:
+                for artwork in artworks_batch:
+                    f.write(json.dumps(artwork) + "\n")
+            written_count += len(artworks_batch)
+            artworks_batch = []
+
+        if args.daily_limit:
+            current_offset = offset + ids_done
+            completed = current_offset >= total_available
+            new_total = state.get("total_artworks", 0) + written_count
+            save_state({
+                "offset": current_offset,
+                "total_available": total_available,
+                "total_artworks": new_total,
+                "completed": completed,
+                "last_run": datetime.now(timezone.utc).isoformat(),
+            })
+            log.info(f"Checkpoint saved — offset {current_offset}/{total_available} | {new_total} total artworks")
 
     for i, oid in enumerate(object_ids):
         raw_path = RAW_DIR / f"{oid}.json"
@@ -283,53 +314,38 @@ def main():
         if normalised is None:
             skipped += 1
         else:
-            artworks.append(normalised)
+            artworks_batch.append(normalised)
 
         if (i + 1) % 500 == 0:
-            log.info(f"Progress: {i+1}/{len(object_ids)} — {len(artworks)} kept, {skipped} skipped, {errors} errors")
+            log.info(f"Progress: {i+1}/{len(object_ids)} — {written_count + len(artworks_batch)} kept, {skipped} skipped, {errors} errors")
 
-    # 4. Write outputs
-    ndjson_path = OUTPUT_DIR / "artworks.ndjson"
-    is_first_run = (offset == 0)
+        # Checkpoint every CHECKPOINT_EVERY IDs processed
+        if args.daily_limit and (i + 1) % CHECKPOINT_EVERY == 0:
+            flush_checkpoint(ids_done=i + 1)
 
-    if is_first_run:
-        # First run: write fresh files
+    # 4. Final flush (remaining artworks not yet written)
+    flush_checkpoint(ids_done=len(object_ids))
+
+    # 5. Also write artworks.json on first run for easy browsing
+    if is_first_run and written_count > 0:
         artworks_path = OUTPUT_DIR / "artworks.json"
+        with open(ndjson_path) as f:
+            all_artworks = [json.loads(line) for line in f if line.strip()]
         with open(artworks_path, "w") as f:
-            json.dump(artworks, f, indent=2)
-        with open(ndjson_path, "w") as f:
-            for artwork in artworks:
-                f.write(json.dumps(artwork) + "\n")
-        log.info(f"Written {len(artworks)} artworks to {artworks_path}")
-    else:
-        # Subsequent runs: append to ndjson
-        with open(ndjson_path, "a") as f:
-            for artwork in artworks:
-                f.write(json.dumps(artwork) + "\n")
-        log.info(f"Appended {len(artworks)} artworks to {ndjson_path}")
+            json.dump(all_artworks, f, indent=2)
+        log.info(f"artworks.json written ({len(all_artworks)} records)")
 
-    # 5. Update state for incremental runs
     if args.daily_limit:
-        new_offset = offset + len(object_ids)
-        completed = new_offset >= total_available
-        new_total = state.get("total_artworks", 0) + len(artworks)
-
-        save_state({
-            "offset": new_offset,
-            "total_available": total_available,
-            "total_artworks": new_total,
-            "completed": completed,
-            "last_run": datetime.now(timezone.utc).isoformat(),
-        })
-
-        log.info(f"\nState saved: {new_total} total artworks | offset {new_offset}/{total_available}")
-        if completed:
+        final_state = load_state()
+        log.info(f"\nDone. {final_state.get('total_artworks', 0)} total artworks | offset {final_state.get('offset')}/{total_available}")
+        if final_state.get("completed"):
             log.info("🎉 All Met Museum IDs have been processed. Ingestion COMPLETE.")
         else:
-            remaining_days = -(-( total_available - new_offset) // args.daily_limit)  # ceiling div
-            log.info(f"Estimated {remaining_days} more daily run(s) to complete.")
+            remaining = total_available - final_state.get("offset", 0)
+            days = -(- remaining // args.daily_limit)
+            log.info(f"~{days} more daily run(s) to complete.")
     else:
-        log.info(f"\nDone. {len(artworks)} artworks | Skipped: {skipped} | Errors: {errors}")
+        log.info(f"\nDone. {written_count} artworks | Skipped: {skipped} | Errors: {errors}")
 
 
 if __name__ == "__main__":

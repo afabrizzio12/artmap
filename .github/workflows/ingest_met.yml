@@ -7,9 +7,9 @@ on:
   workflow_dispatch:
     inputs:
       daily_limit:
-        description: "IDs to process this run (default: 20000)"
+        description: "IDs to process this run (default: 15000)"
         required: false
-        default: "20000"
+        default: "15000"
       department:
         description: "Department ID to filter (leave empty for all departments)"
         required: false
@@ -52,8 +52,10 @@ jobs:
 
       - name: Run ingestion
         if: steps.check.outputs.completed == 'false'
+        timeout-minutes: 300
+        continue-on-error: true
         run: |
-          LIMIT="${{ github.event.inputs.daily_limit || '20000' }}"
+          LIMIT="${{ github.event.inputs.daily_limit || '15000' }}"
           ARGS="--daily-limit $LIMIT"
           if [ -n "${{ github.event.inputs.department }}" ]; then
             ARGS="$ARGS --department ${{ github.event.inputs.department }}"
