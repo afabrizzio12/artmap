@@ -1,7 +1,7 @@
 {
-  "offset": 15000,
-  "total_available": 501281,
-  "total_artworks": 10960,
+  "offset": 30000,
+  "total_available": 501340,
+  "total_artworks": 21279,
   "completed": false,
-  "last_run": "2026-04-30T09:58:54.668891+00:00"
+  "last_run": "2026-05-01T10:34:22.062776+00:00"
 }
