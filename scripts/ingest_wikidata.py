@@ -33,9 +33,12 @@ Usage:
     python ingest_wikidata.py --reset   # clear state and restart
 
 Output:
-    output/wikidata/institutions.json    index of all art museums (built once)
-    output/wikidata/artworks.ndjson      normalised artworks (appended daily)
-    output/wikidata/ingest_state.json    progress state
+    output/wikidata/institutions.json         index of all art museums (built once)
+    output/wikidata/artworks/{qid}.ndjson     normalised artworks, one file per institution
+    output/wikidata/ingest_state.json         progress state
+
+Migration (run once after upgrading from monolithic artworks.ndjson):
+    python ingest_wikidata.py --migrate
 """
 
 import argparse
@@ -62,8 +65,10 @@ INST_PAGE_SIZE = 2000        # institutions per SPARQL page
 ARTWORK_PAGE_SIZE = 1000     # artworks per institution (most have <500)
 
 OUTPUT_DIR = Path(__file__).parent.parent / "output" / "wikidata"
+ARTWORKS_DIR = OUTPUT_DIR / "artworks"          # per-institution ndjson files
 INSTITUTIONS_FILE = OUTPUT_DIR / "institutions.json"
 STATE_FILE = OUTPUT_DIR / "ingest_state.json"
+LEGACY_NDJSON = OUTPUT_DIR / "artworks.ndjson"  # pre-migration monolithic file
 
 # Institution types to include — art museums + art galleries + similar
 INSTITUTION_TYPE_QIDS = [
@@ -429,6 +434,57 @@ def save_institutions(institutions: list[dict]) -> None:
 # Main
 # ---------------------------------------------------------------------------
 
+def write_institution_artworks(qid: str, artworks: list[dict], mode: str = "a") -> None:
+    """Write artworks for one institution to its own ndjson file."""
+    if not artworks:
+        return
+    ARTWORKS_DIR.mkdir(parents=True, exist_ok=True)
+    path = ARTWORKS_DIR / f"{qid}.ndjson"
+    with open(path, mode) as f:
+        for aw in artworks:
+            f.write(json.dumps(aw) + "\n")
+
+
+def migrate_legacy_ndjson() -> None:
+    """One-time migration: split artworks.ndjson into per-institution files.
+
+    Reads the old monolithic artworks.ndjson (if it exists), groups records
+    by institution QID, and writes each group to artworks/{qid}.ndjson.
+    Safe to re-run — existing per-institution files are overwritten.
+    """
+    if not LEGACY_NDJSON.exists():
+        log.info("No legacy artworks.ndjson found — nothing to migrate.")
+        return
+
+    log.info(f"Migrating {LEGACY_NDJSON} → per-institution files in {ARTWORKS_DIR}/")
+    ARTWORKS_DIR.mkdir(parents=True, exist_ok=True)
+
+    buckets: dict[str, list[str]] = {}
+    total = 0
+    with open(LEGACY_NDJSON) as f:
+        for line in f:
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                record = json.loads(line)
+                qid = record.get("institution", {}).get("id") or "unknown"
+                buckets.setdefault(qid, []).append(line)
+                total += 1
+            except json.JSONDecodeError:
+                continue
+
+    for qid, lines in buckets.items():
+        path = ARTWORKS_DIR / f"{qid}.ndjson"
+        with open(path, "w") as f:
+            f.write("\n".join(lines) + "\n")
+
+    log.info(f"Migration complete: {total} records → {len(buckets)} institution files")
+    log.info(f"You can now delete {LEGACY_NDJSON} and remove it from git tracking:")
+    log.info(f"  git rm --cached output/wikidata/artworks.ndjson")
+    log.info(f"  echo 'output/wikidata/artworks.ndjson' >> .gitignore")
+
+
 def main():
     parser = argparse.ArgumentParser(description="Ingest artworks from Wikidata (institution-first)")
     parser.add_argument("--build-index", action="store_true",
@@ -437,9 +493,19 @@ def main():
                         help="Max artworks to collect per run (default: 5000)")
     parser.add_argument("--reset", action="store_true",
                         help="Clear artwork state and restart from first institution")
+    parser.add_argument("--migrate", action="store_true",
+                        help="One-time: split legacy artworks.ndjson into per-institution files")
     args = parser.parse_args()
 
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+    ARTWORKS_DIR.mkdir(parents=True, exist_ok=True)
+
+    # ------------------------------------------------------------------
+    # Migration helper
+    # ------------------------------------------------------------------
+    if args.migrate:
+        migrate_legacy_ndjson()
+        return
 
     # ------------------------------------------------------------------
     # Step 1: build institution index (or refresh)
@@ -459,14 +525,14 @@ def main():
         log.error("No institution index found. Run with --build-index first.")
         sys.exit(1)
 
-    ndjson_path = OUTPUT_DIR / "artworks.ndjson"
-
     # Load or reset state
     if args.reset:
         if STATE_FILE.exists():
             STATE_FILE.unlink()
-        if ndjson_path.exists():
-            ndjson_path.unlink()
+        if ARTWORKS_DIR.exists():
+            import shutil
+            shutil.rmtree(ARTWORKS_DIR)
+        ARTWORKS_DIR.mkdir(parents=True, exist_ok=True)
         log.info("State reset.")
     state = load_state()
 
@@ -485,20 +551,6 @@ def main():
 
     artworks_this_run = 0
     errors = 0
-    CHECKPOINT_EVERY = 200   # write to disk every N artworks
-
-    artworks_buffer: list[dict] = []
-
-    def flush_buffer(final: bool = False) -> None:
-        nonlocal artworks_buffer
-        if not artworks_buffer:
-            return
-        # Always append — "a" mode creates the file if it doesn't exist,
-        # and appends correctly if we're resuming a previous run.
-        with open(ndjson_path, "a") as f:
-            for aw in artworks_buffer:
-                f.write(json.dumps(aw) + "\n")
-        artworks_buffer = []
 
     i = inst_offset
     while i < len(institutions) and artworks_this_run < args.daily_limit:
@@ -518,28 +570,22 @@ def main():
         for a in new_artworks:
             seen_artwork_qids.add(a["source_id"])
 
-        artworks_buffer.extend(new_artworks)
+        # Write this institution's artworks to its own file
+        write_institution_artworks(inst["qid"], new_artworks)
         artworks_this_run += len(new_artworks)
         log.info(f"  → {len(new_artworks)} new artworks (total this run: {artworks_this_run})")
 
         i += 1
 
-        # Checkpoint
-        if len(artworks_buffer) >= CHECKPOINT_EVERY:
-            flush_buffer()
-            save_state({
-                "inst_offset": i,
-                "total_artworks": total_so_far + artworks_this_run,
-                "completed": False,
-                "last_run": datetime.now(timezone.utc).isoformat(),
-                # Don't persist seen_qids — too large; dedup handled in-memory per run
-            })
-            log.info(f"Checkpoint | inst={i}/{len(institutions)} | total={total_so_far + artworks_this_run}")
+        # Checkpoint state after each institution
+        save_state({
+            "inst_offset": i,
+            "total_artworks": total_so_far + artworks_this_run,
+            "completed": False,
+            "last_run": datetime.now(timezone.utc).isoformat(),
+        })
 
         time.sleep(REQUEST_DELAY)
-
-    # Final flush
-    flush_buffer(final=True)
 
     completed = (i >= len(institutions))
     new_total = total_so_far + artworks_this_run
