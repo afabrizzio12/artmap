@@ -44,6 +44,7 @@ Migration (run once after upgrading from monolithic artworks.ndjson):
 import argparse
 import json
 import logging
+import os
 import re
 import sys
 import time
@@ -51,6 +52,21 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 import requests
+from dotenv import load_dotenv
+
+load_dotenv()
+
+# Supabase — optional; enabled when env vars are present
+_sb = None
+def _get_supabase():
+    global _sb
+    if _sb is None:
+        url = os.environ.get("SUPABASE_URL")
+        key = os.environ.get("SUPABASE_SERVICE_KEY")
+        if url and key:
+            from supabase import create_client
+            _sb = create_client(url, key)
+    return _sb
 
 # ---------------------------------------------------------------------------
 # Config
@@ -434,8 +450,69 @@ def save_institutions(institutions: list[dict]) -> None:
 # Main
 # ---------------------------------------------------------------------------
 
+def _is_valid_qid(qid: str | None) -> bool:
+    return bool(qid and qid.startswith("Q") and not qid.startswith("http"))
+
+
+def _to_artwork_row(a: dict) -> dict:
+    inst = a.get("institution") or {}
+    artist = a.get("artist") or {}
+    date = a.get("date") or {}
+    cls = a.get("classification") or {}
+    images = a.get("images") or {}
+    artist_qid = artist.get("wikidata_qid")
+    artist_name = artist.get("display_name") or artist.get("name")
+    return {
+        "id": a["id"],
+        "source": a.get("source", "wikidata"),
+        "source_id": a.get("source_id", ""),
+        "title": (a.get("title") or "")[:500],
+        "artist_qid": artist_qid if _is_valid_qid(artist_qid) else None,
+        "artist_name": artist_name if artist_name and not artist_name.startswith("http") else None,
+        "institution_id": inst.get("id") or inst.get("wikidata_qid"),
+        "year_start": date.get("year_start"),
+        "year_end": date.get("year_end"),
+        "date_display": date.get("display"),
+        "classification": cls.get("type"),
+        "genre": cls.get("genre"),
+        "movement": cls.get("period"),
+        "image_url": images.get("primary"),
+        "image_thumb_url": images.get("primary_small"),
+        "source_url": a.get("source_url"),
+        "is_public_domain": a.get("is_public_domain", True),
+        "license": a.get("license", "CC0"),
+    }
+
+
+_SB_BATCH = 500
+
+
+def _sb_upsert(table: str, rows: list, conflict_col: str = "id") -> None:
+    sb = _get_supabase()
+    if not sb or not rows:
+        return
+    for i in range(0, len(rows), _SB_BATCH):
+        chunk = rows[i : i + _SB_BATCH]
+        try:
+            sb.table(table).upsert(chunk, on_conflict=conflict_col).execute()
+        except Exception as e:
+            log.warning(f"  Supabase upsert failed on {table}: {e}")
+
+
+def _upsert_institution(inst: dict) -> None:
+    _sb_upsert("institutions", [{
+        "id": inst["qid"],
+        "name": inst["name"],
+        "wikidata_qid": inst["qid"],
+        "country": inst.get("country"),
+        "city": inst.get("city"),
+        "lat": inst.get("lat"),
+        "lng": inst.get("lng"),
+    }])
+
+
 def write_institution_artworks(qid: str, artworks: list[dict], mode: str = "a") -> None:
-    """Write artworks for one institution to its own ndjson file."""
+    """Write artworks for one institution to its own ndjson file and upsert to Supabase."""
     if not artworks:
         return
     ARTWORKS_DIR.mkdir(parents=True, exist_ok=True)
@@ -443,6 +520,28 @@ def write_institution_artworks(qid: str, artworks: list[dict], mode: str = "a") 
     with open(path, mode) as f:
         for aw in artworks:
             f.write(json.dumps(aw) + "\n")
+
+    # Supabase: upsert artists first (avoids FK violation on artworks.artist_qid)
+    artists: dict[str, dict] = {}
+    for a in artworks:
+        artist = a.get("artist") or {}
+        aqid = artist.get("wikidata_qid")
+        aname = artist.get("display_name") or artist.get("name")
+        if _is_valid_qid(aqid) and aqid not in artists and aname and not aname.startswith("http"):
+            artists[aqid] = {
+                "wikidata_qid": aqid,
+                "name": aname,
+                "display_name": aname,
+                "nationality": artist.get("nationality"),
+                "student_of_qid": artist.get("student_of_qid")
+                    if _is_valid_qid(artist.get("student_of_qid")) else None,
+            }
+    if artists:
+        _sb_upsert("artists", list(artists.values()), conflict_col="wikidata_qid")
+
+    # Upsert artworks
+    rows = [_to_artwork_row(a) for a in artworks]
+    _sb_upsert("artworks", rows)
 
 
 def migrate_legacy_ndjson() -> None:
@@ -514,6 +613,16 @@ def main():
         institutions = build_institution_index()
         save_institutions(institutions)
         log.info(f"Saved {len(institutions)} institutions to {INSTITUTIONS_FILE}")
+        # Mirror to Supabase
+        inst_rows = [
+            {"id": i["qid"], "name": i["name"], "wikidata_qid": i["qid"],
+             "country": i.get("country"), "city": i.get("city"),
+             "lat": i.get("lat"), "lng": i.get("lng")}
+            for i in institutions
+        ]
+        _sb_upsert("institutions", inst_rows)
+        if _get_supabase():
+            log.info(f"Upserted {len(inst_rows)} institutions to Supabase")
         return
 
     # ------------------------------------------------------------------

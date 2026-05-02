@@ -28,8 +28,6 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Check if ingestion is already complete
         id: check
@@ -54,6 +52,9 @@ jobs:
       - name: Build institution index (one-time setup)
         if: github.event.inputs.build_index == 'true'
         timeout-minutes: 30
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
         run: python scripts/ingest_wikidata.py --build-index
 
       - name: Commit institution index
@@ -62,7 +63,7 @@ jobs:
           git config user.name "artmap-bot"
           git config user.email "artmap-bot@users.noreply.github.com"
           git add output/wikidata/institutions.json
-          git diff --cached --quiet || git commit -m "chore: rebuild Wikidata institution index ($(wc -l < output/wikidata/institutions.json || echo '?') entries)"
+          git diff --cached --quiet || git commit -m "chore: rebuild Wikidata institution index"
           git pull --rebase origin main
           git push
 
@@ -70,17 +71,20 @@ jobs:
         if: steps.check.outputs.completed == 'false' && github.event.inputs.build_index != 'true'
         timeout-minutes: 290
         continue-on-error: true
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
         run: |
           LIMIT="${{ github.event.inputs.daily_limit || '5000' }}"
           python scripts/ingest_wikidata.py --daily-limit $LIMIT
 
-      - name: Commit updated data
+      - name: Commit ingest state
         if: steps.check.outputs.completed == 'false' && github.event.inputs.build_index != 'true'
         run: |
           git config user.name "artmap-bot"
           git config user.email "artmap-bot@users.noreply.github.com"
-          git add output/wikidata/artworks/ output/wikidata/ingest_state.json
-          git diff --cached --quiet || git commit -m "chore: Wikidata ingest $(date -u +'%Y-%m-%d')"
+          git add output/wikidata/ingest_state.json
+          git diff --cached --quiet || git commit -m "chore: Wikidata ingest state $(date -u +'%Y-%m-%d')"
           git pull --rebase origin main
           git push
 
