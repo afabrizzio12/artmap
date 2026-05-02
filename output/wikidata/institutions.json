@@ -1053,6 +1053,736 @@
     "lng": 2.153305555
   },
   {
+    "qid": "Q475394",
+    "name": "Antikensammlung Berlin",
+    "wikidata_url": "https://www.wikidata.org/wiki/Q475394",
+    "country": "Germany",
+    "city": "Bezirk Mitte",
+    "lat": 52.5194,
+    "lng": 13.3983,
+    "parent_qid": "Q157298"
+  },
+  {
+    "qid": "Q3044747",
+    "name": "Department of Greek, Etruscan, and Roman Antiquities of the Louvre",
+    "wikidata_url": "https://www.wikidata.org/wiki/Q3044747",
+    "country": "France",
+    "city": "Saint-Germain-l'Auxerrois",
+    "lat": 48.861111111,
+    "lng": 2.335833333,
+    "parent_qid": "Q19675"
+  },
+  {
+    "qid": "Q913058",
+    "name": "Vasari Corridor",
+    "wikidata_url": "https://www.wikidata.org/wiki/Q913058",
+    "country": "Italy",
+    "city": "Florence",
+    "lat": 43.768997,
+    "lng": 11.256379,
+    "parent_qid": "Q51252"
+  },
+  {
+    "qid": "Q683074",
+    "name": "Borghese Collection",
+    "wikidata_url": "https://www.wikidata.org/wiki/Q683074",
+    "country": "France",
+    "city": "Saint-Germain-l'Auxerrois",
+    "lat": 48.861111111,
+    "lng": 2.335833333,
+    "parent_qid": "Q19675"
+  },
+  {
+    "qid": "Q672373",
+    "name": "Ephesos Museum",
+    "wikidata_url": "https://www.wikidata.org/wiki/Q672373",
+    "country": "Austria",
+    "city": "Vienna",
+    "lat": 48.2055,
+    "lng": 16.3652,
+    "parent_qid": "Q95569"
+  },
+  {
+    "qid": "Q526381",
+    "name": "Gregorian Egyptian Museum",
+    "wikidata_url": "https://www.wikidata.org/wiki/Q526381",
+    "country": "Vatican City",
+    "city": "Vatican City",
+    "lat": 41.9064,
+    "lng": 12.4546,
+    "parent_qid": "Q182955"
+  },
+  {
+    "qid": "Q774940",
+    "name": "Pinacoteca Vaticana",
+    "wikidata_url": "https://www.wikidata.org/wiki/Q774940",
+    "country": "Vatican City",
+    "city": "Vatican City",
+    "lat": 41.90573,
+    "lng": 12.45277,
+    "parent_qid": "Q182955"
+  },
+  {
+    "qid": "Q1439912",
+    "name": "Pio-Clementino museum",
+    "wikidata_url": "https://www.wikidata.org/wiki/Q1439912",
+    "country": "Vatican City",
+    "city": "Vatican City",
+    "lat": 41.906731,
+    "lng": 12.453515,
+    "parent_qid": "Q182955"
+  },
+  {
+    "qid": "Q3044748",
+    "name": "Department of Islamic Arts of the Louvre",
+    "wikidata_url": "https://www.wikidata.org/wiki/Q3044748",
+    "country": "France",
+    "city": "Saint-Germain-l'Auxerrois",
+    "lat": 48.861111111,
+    "lng": 2.335833333,
+    "parent_qid": "Q19675"
+  },
+  {
+    "qid": "Q1452723",
+    "name": "Museo Chiaramonti",
+    "wikidata_url": "https://www.wikidata.org/wiki/Q1452723",
+    "country": "Vatican City",
+    "city": "Vatican City",
+    "lat": 41.904389,
+    "lng": 12.455111,
+    "parent_qid": "Q182955"
+  },
+  {
+    "qid": "Q1452738",
+    "name": "Gregorian Etruscan Museum",
+    "wikidata_url": "https://www.wikidata.org/wiki/Q1452738",
+    "country": "Vatican City",
+    "city": "Vatican City",
+    "lat": 41.906677777,
+    "lng": 12.454847222,
+    "parent_qid": "Q182955"
+  },
+  {
+    "qid": "Q3044749",
+    "name": "Department of Egyptian Antiquities of the Louvre",
+    "wikidata_url": "https://www.wikidata.org/wiki/Q3044749",
+    "country": "France",
+    "city": "Paris",
+    "lat": 48.861111111,
+    "lng": 2.335833333,
+    "parent_qid": "Q19675"
+  },
+  {
+    "qid": "Q3523",
+    "name": "Secret Museum",
+    "wikidata_url": "https://www.wikidata.org/wiki/Q3523",
+    "country": "Italy",
+    "city": "Naples",
+    "lat": 40.85337778,
+    "lng": 14.25048611,
+    "parent_qid": "Q637248"
+  },
+  {
+    "qid": "Q4132371",
+    "name": "Gallery of the Candelabra",
+    "wikidata_url": "https://www.wikidata.org/wiki/Q4132371",
+    "country": "Vatican City",
+    "city": "Vatican City",
+    "lat": 41.906388888,
+    "lng": 12.454444444,
+    "parent_qid": "Q182955"
+  },
+  {
+    "qid": "Q61781807",
+    "name": "Drawing and Prints Department of the Metropolitan Museum of Art",
+    "wikidata_url": "https://www.wikidata.org/wiki/Q61781807",
+    "country": "United States",
+    "city": "Manhattan",
+    "lat": 40.779444444,
+    "lng": -73.963333333,
+    "parent_qid": "Q160236"
+  },
+  {
+    "qid": "Q3868391",
+    "name": "Gregoriano Profano Museum",
+    "wikidata_url": "https://www.wikidata.org/wiki/Q3868391",
+    "country": "Vatican City",
+    "city": "Vatican City",
+    "lat": 41.9062,
+    "lng": 12.4526,
+    "parent_qid": "Q182955"
+  },
+  {
+    "qid": "Q2318005",
+    "name": "Museo Pio Cristiano",
+    "wikidata_url": "https://www.wikidata.org/wiki/Q2318005",
+    "country": "Vatican City",
+    "city": "Vatican City",
+    "lat": 41.9065,
+    "lng": 12.4538,
+    "parent_qid": "Q182955"
+  },
+  {
+    "qid": "Q2034945",
+    "name": "Collection of Modern Religious Art, Vatican Museums",
+    "wikidata_url": "https://www.wikidata.org/wiki/Q2034945",
+    "country": "Vatican City",
+    "city": "Vatican City",
+    "lat": 41.903333333,
+    "lng": 12.455,
+    "parent_qid": "Q182955"
+  },
+  {
+    "qid": "Q542084",
+    "name": "Vorderasiatisches Museum Berlin",
+    "wikidata_url": "https://www.wikidata.org/wiki/Q542084",
+    "country": "Germany",
+    "city": "Berlin",
+    "lat": 52.52069444,
+    "lng": 13.39680556,
+    "parent_qid": "Q157298"
+  },
+  {
+    "qid": "Q3106632",
+    "name": "Gilman Paper Company collection",
+    "wikidata_url": "https://www.wikidata.org/wiki/Q3106632",
+    "country": "United States",
+    "city": "Manhattan",
+    "lat": 40.779444444,
+    "lng": -73.963333333,
+    "parent_qid": "Q160236"
+  },
+  {
+    "qid": "Q67429134",
+    "name": "European Paintings",
+    "wikidata_url": "https://www.wikidata.org/wiki/Q67429134",
+    "country": "United States",
+    "city": "Manhattan",
+    "lat": 40.779444444,
+    "lng": -73.963333333,
+    "parent_qid": "Q160236"
+  },
+  {
+    "qid": "Q19750488",
+    "name": "collection Adriaan van der Hoop",
+    "wikidata_url": "https://www.wikidata.org/wiki/Q19750488",
+    "country": "Netherlands",
+    "city": "Amsterdam",
+    "lat": 52.36,
+    "lng": 4.885277777,
+    "parent_qid": "Q190804"
+  },
+  {
+    "qid": "Q55664912",
+    "name": "Department of Egyptian Art, Metropolitan Museum of Art",
+    "wikidata_url": "https://www.wikidata.org/wiki/Q55664912",
+    "country": "United States",
+    "city": "Manhattan",
+    "lat": 40.779444444,
+    "lng": -73.963333333,
+    "parent_qid": "Q160236"
+  },
+  {
+    "qid": "Q23417356",
+    "name": "V&A Wedgwood Collection",
+    "wikidata_url": "https://www.wikidata.org/wiki/Q23417356",
+    "country": "United Kingdom",
+    "city": "City of Stoke-on-Trent",
+    "lat": 52.951892,
+    "lng": -2.17081,
+    "parent_qid": "Q213322"
+  },
+  {
+    "qid": "Q570620",
+    "name": "Kupferstich-Kabinett Dresden",
+    "wikidata_url": "https://www.wikidata.org/wiki/Q570620",
+    "country": "Germany",
+    "city": "Dresden",
+    "lat": 51.0527,
+    "lng": 13.7369,
+    "parent_qid": "Q653002"
+  },
+  {
+    "qid": "Q26898264",
+    "name": "Berlin Papyrus Collection",
+    "wikidata_url": "https://www.wikidata.org/wiki/Q26898264",
+    "country": "Germany",
+    "city": "Berlin",
+    "lat": 52.520238888,
+    "lng": 13.397741666,
+    "parent_qid": "Q254156"
+  },
+  {
+    "qid": "Q707407",
+    "name": "Green Vault",
+    "wikidata_url": "https://www.wikidata.org/wiki/Q707407",
+    "country": "Germany",
+    "city": "Dresden",
+    "lat": 51.0528,
+    "lng": 13.7364,
+    "parent_qid": "Q653002"
+  },
+  {
+    "qid": "Q644281",
+    "name": "Young V&A",
+    "wikidata_url": "https://www.wikidata.org/wiki/Q644281",
+    "country": "United Kingdom",
+    "city": "London Borough of Tower Hamlets",
+    "lat": 51.529055555,
+    "lng": -0.054888888,
+    "parent_qid": "Q213322"
+  },
+  {
+    "qid": "Q869690",
+    "name": "Skulpturensammlung Dresden",
+    "wikidata_url": "https://www.wikidata.org/wiki/Q869690",
+    "country": "Germany",
+    "city": "Dresden",
+    "lat": 51.0519,
+    "lng": 13.7444,
+    "parent_qid": "Q653002"
+  },
+  {
+    "qid": "Q46596638",
+    "name": "Andrew W. Mellon collection",
+    "wikidata_url": "https://www.wikidata.org/wiki/Q46596638",
+    "country": "United States",
+    "city": "Washington, D.C.",
+    "lat": 38.891388888,
+    "lng": -77.02,
+    "parent_qid": "Q214867"
+  },
+  {
+    "qid": "Q118016396",
+    "name": "Getty Villa Collection",
+    "wikidata_url": "https://www.wikidata.org/wiki/Q118016396",
+    "country": "United States",
+    "city": "Los Angeles",
+    "lat": 34.0775,
+    "lng": -118.475,
+    "parent_qid": "Q731126"
+  },
+  {
+    "qid": "Q3044751",
+    "name": "Department of Near Eastern Antiquities of the Louvre",
+    "wikidata_url": "https://www.wikidata.org/wiki/Q3044751",
+    "country": "France",
+    "city": "Saint-Germain-l'Auxerrois",
+    "lat": 48.861530555,
+    "lng": 2.337608333,
+    "parent_qid": "Q19675"
+  },
+  {
+    "qid": "Q62101859",
+    "name": "Widener Collection",
+    "wikidata_url": "https://www.wikidata.org/wiki/Q62101859",
+    "country": "United States",
+    "city": "Washington, D.C.",
+    "lat": 38.891388888,
+    "lng": -77.02,
+    "parent_qid": "Q214867"
+  },
+  {
+    "qid": "Q2000542",
+    "name": "Saint Michael's Castle",
+    "wikidata_url": "https://www.wikidata.org/wiki/Q2000542",
+    "country": "Russia",
+    "city": "Saint Petersburg",
+    "lat": 59.940416666,
+    "lng": 30.337638888,
+    "parent_qid": "Q211043"
+  },
+  {
+    "qid": "Q19478938",
+    "name": "Rijksprentenkabinet",
+    "wikidata_url": "https://www.wikidata.org/wiki/Q19478938",
+    "country": "Netherlands",
+    "city": "Amsterdam",
+    "lat": 52.36,
+    "lng": 4.885277777,
+    "parent_qid": "Q190804"
+  },
+  {
+    "qid": "Q321088",
+    "name": "Mathematisch-Physikalischer Salon",
+    "wikidata_url": "https://www.wikidata.org/wiki/Q321088",
+    "country": "Germany",
+    "city": "Dresden",
+    "lat": 51.0532,
+    "lng": 13.7328,
+    "parent_qid": "Q653002"
+  },
+  {
+    "qid": "Q324263",
+    "name": "M\u00fcnzkabinett",
+    "wikidata_url": "https://www.wikidata.org/wiki/Q324263",
+    "country": "Germany",
+    "city": "Dresden",
+    "lat": 51.0527,
+    "lng": 13.7369,
+    "parent_qid": "Q653002"
+  },
+  {
+    "qid": "Q3044753",
+    "name": "Department of Prints and Drawings of the Louvre",
+    "wikidata_url": "https://www.wikidata.org/wiki/Q3044753",
+    "country": "France",
+    "city": "Saint-Germain-l'Auxerrois",
+    "lat": 48.861111111,
+    "lng": 2.335833333,
+    "parent_qid": "Q19675"
+  },
+  {
+    "qid": "Q62104323",
+    "name": "Decorative arts in the National Gallery of Art",
+    "wikidata_url": "https://www.wikidata.org/wiki/Q62104323",
+    "country": "United States",
+    "city": "Washington, D.C.",
+    "lat": 38.891388888,
+    "lng": -77.02,
+    "parent_qid": "Q214867"
+  },
+  {
+    "qid": "Q62274660",
+    "name": "Rosenwald Collection",
+    "wikidata_url": "https://www.wikidata.org/wiki/Q62274660",
+    "country": "United States",
+    "city": "Washington, D.C.",
+    "lat": 38.891388888,
+    "lng": -77.02,
+    "parent_qid": "Q214867"
+  },
+  {
+    "qid": "Q3044767",
+    "name": "Department of Decorative Arts of the Louvre",
+    "wikidata_url": "https://www.wikidata.org/wiki/Q3044767",
+    "country": "France",
+    "city": "Saint-Germain-l'Auxerrois",
+    "lat": 48.861111111,
+    "lng": 2.335833333,
+    "parent_qid": "Q19675"
+  },
+  {
+    "qid": "Q3044768",
+    "name": "Department of Paintings of the Louvre",
+    "wikidata_url": "https://www.wikidata.org/wiki/Q3044768",
+    "country": "France",
+    "city": "Saint-Germain-l'Auxerrois",
+    "lat": 48.861111111,
+    "lng": 2.335833333,
+    "parent_qid": "Q19675"
+  },
+  {
+    "qid": "Q3044772",
+    "name": "Department of Sculptures of the Louvre",
+    "wikidata_url": "https://www.wikidata.org/wiki/Q3044772",
+    "country": "France",
+    "city": "Saint-Germain-l'Auxerrois",
+    "lat": 48.861111111,
+    "lng": 2.335833333,
+    "parent_qid": "Q19675"
+  },
+  {
+    "qid": "Q3112929",
+    "name": "Kunstkammer Wien",
+    "wikidata_url": "https://www.wikidata.org/wiki/Q3112929",
+    "country": "Austria",
+    "city": "Vienna",
+    "lat": 48.203880555,
+    "lng": 16.3616,
+    "parent_qid": "Q95569"
+  },
+  {
+    "qid": "Q3683040",
+    "name": "Contini Bonacossi collection",
+    "wikidata_url": "https://www.wikidata.org/wiki/Q3683040",
+    "country": "Italy",
+    "city": "Florence",
+    "lat": 43.7687,
+    "lng": 11.2549,
+    "parent_qid": "Q51252"
+  },
+  {
+    "qid": "Q3869272",
+    "name": "M\u00fcnzkabinett",
+    "wikidata_url": "https://www.wikidata.org/wiki/Q3869272",
+    "country": "Austria",
+    "city": "Vienna",
+    "lat": 48.204658388,
+    "lng": 16.360611298,
+    "parent_qid": "Q95569"
+  },
+  {
+    "qid": "Q3756440",
+    "name": "Gabinetto dei disegni e delle stampe",
+    "wikidata_url": "https://www.wikidata.org/wiki/Q3756440",
+    "country": "Italy",
+    "city": "Florence",
+    "lat": 43.768997,
+    "lng": 11.256379,
+    "parent_qid": "Q51252"
+  },
+  {
+    "qid": "Q21004295",
+    "name": "Rose-Marie and Eijk van Otterloo Collection",
+    "wikidata_url": "https://www.wikidata.org/wiki/Q21004295",
+    "country": "United States",
+    "city": "Massachusetts",
+    "lat": 42.339444444,
+    "lng": -71.094166666,
+    "parent_qid": "Q49133"
+  },
+  {
+    "qid": "Q106824040",
+    "name": "service de l'Histoire du Louvre",
+    "wikidata_url": "https://www.wikidata.org/wiki/Q106824040",
+    "country": "France",
+    "city": "Saint-Germain-l'Auxerrois",
+    "lat": 48.861111111,
+    "lng": 2.335833333,
+    "parent_qid": "Q19675"
+  },
+  {
+    "qid": "Q106349126",
+    "name": "sculptures from the gardens of the Louvre Museum",
+    "wikidata_url": "https://www.wikidata.org/wiki/Q106349126",
+    "country": "France",
+    "city": "Saint-Germain-l'Auxerrois",
+    "lat": 48.861111111,
+    "lng": 2.335833333,
+    "parent_qid": "Q19675"
+  },
+  {
+    "qid": "Q121354106",
+    "name": "departement of the Byzantine Arts  and the Eastern Christians in the Louvre Museum",
+    "wikidata_url": "https://www.wikidata.org/wiki/Q121354106",
+    "country": "France",
+    "city": "Saint-Germain-l'Auxerrois",
+    "lat": 48.861111111,
+    "lng": 2.335833333,
+    "parent_qid": "Q19675"
+  },
+  {
+    "qid": "Q28195189",
+    "name": "British Museum Department of the Middle East",
+    "wikidata_url": "https://www.wikidata.org/wiki/Q28195189",
+    "country": "United Kingdom",
+    "city": "London Borough of Camden",
+    "lat": 51.51915,
+    "lng": -0.12814,
+    "parent_qid": "Q6373"
+  },
+  {
+    "qid": "Q47515850",
+    "name": "British Museum Department of Greece and Rome",
+    "wikidata_url": "https://www.wikidata.org/wiki/Q47515850",
+    "country": "United Kingdom",
+    "city": "London Borough of Camden",
+    "lat": 51.519444444,
+    "lng": -0.126944444,
+    "parent_qid": "Q6373"
+  },
+  {
+    "qid": "Q47404068",
+    "name": "Susan and Matthew Weatherbie Collection",
+    "wikidata_url": "https://www.wikidata.org/wiki/Q47404068",
+    "country": "United States",
+    "city": "Massachusetts",
+    "lat": 42.339444444,
+    "lng": -71.094166666,
+    "parent_qid": "Q49133"
+  },
+  {
+    "qid": "Q28162699",
+    "name": "British Museum Department of Ancient Egypt and Sudan",
+    "wikidata_url": "https://www.wikidata.org/wiki/Q28162699",
+    "country": "United Kingdom",
+    "city": "London Borough of Camden",
+    "lat": 51.519338888,
+    "lng": -0.127741666,
+    "parent_qid": "Q6373"
+  },
+  {
+    "qid": "Q45993794",
+    "name": "British Museum Department of Prints and Drawings",
+    "wikidata_url": "https://www.wikidata.org/wiki/Q45993794",
+    "country": "United Kingdom",
+    "city": "London Borough of Camden",
+    "lat": 51.519444444,
+    "lng": -0.126944444,
+    "parent_qid": "Q6373"
+  },
+  {
+    "qid": "Q62274663",
+    "name": "Samuel H. Kress Collection of the National Gallery of Art",
+    "wikidata_url": "https://www.wikidata.org/wiki/Q62274663",
+    "country": "United States",
+    "city": "Washington, D.C.",
+    "lat": 38.891388888,
+    "lng": -77.02,
+    "parent_qid": "Q214867"
+  },
+  {
+    "qid": "Q62274675",
+    "name": "Ailsa Mellon Bruce Collection",
+    "wikidata_url": "https://www.wikidata.org/wiki/Q62274675",
+    "country": "United States",
+    "city": "Washington, D.C.",
+    "lat": 38.891388888,
+    "lng": -77.02,
+    "parent_qid": "Q214867"
+  },
+  {
+    "qid": "Q62275030",
+    "name": "Corcoran Collection (William A. Clark Collection)",
+    "wikidata_url": "https://www.wikidata.org/wiki/Q62275030",
+    "country": "United States",
+    "city": "Washington, D.C.",
+    "lat": 38.891388888,
+    "lng": -77.02,
+    "parent_qid": "Q214867"
+  },
+  {
+    "qid": "Q62274788",
+    "name": "Harry G. Steele Collection",
+    "wikidata_url": "https://www.wikidata.org/wiki/Q62274788",
+    "country": "United States",
+    "city": "Washington, D.C.",
+    "lat": 38.891388888,
+    "lng": -77.02,
+    "parent_qid": "Q214867"
+  },
+  {
+    "qid": "Q62470316",
+    "name": "Media Arts in the National Gallery of Art",
+    "wikidata_url": "https://www.wikidata.org/wiki/Q62470316",
+    "country": "United States",
+    "city": "Washington, D.C.",
+    "lat": 38.891388888,
+    "lng": -77.02,
+    "parent_qid": "Q214867"
+  },
+  {
+    "qid": "Q63806982",
+    "name": "Sculptures in the National Gallery of Art",
+    "wikidata_url": "https://www.wikidata.org/wiki/Q63806982",
+    "country": "United States",
+    "city": "Washington, D.C.",
+    "lat": 38.891388888,
+    "lng": -77.02,
+    "parent_qid": "Q214867"
+  },
+  {
+    "qid": "Q64029356",
+    "name": "Photographs in the National Gallery of Art",
+    "wikidata_url": "https://www.wikidata.org/wiki/Q64029356",
+    "country": "United States",
+    "city": "Washington, D.C.",
+    "lat": 38.891388888,
+    "lng": -77.02,
+    "parent_qid": "Q214867"
+  },
+  {
+    "qid": "Q64429869",
+    "name": "Index of American Design",
+    "wikidata_url": "https://www.wikidata.org/wiki/Q64429869",
+    "country": "United States",
+    "city": "Washington, D.C.",
+    "lat": 38.891388888,
+    "lng": -77.02,
+    "parent_qid": "Q214867"
+  },
+  {
+    "qid": "Q64532898",
+    "name": "drawings in the National Gallery of Art",
+    "wikidata_url": "https://www.wikidata.org/wiki/Q64532898",
+    "country": "United States",
+    "city": "Washington, D.C.",
+    "lat": 38.891388888,
+    "lng": -77.02,
+    "parent_qid": "Q214867"
+  },
+  {
+    "qid": "Q64946756",
+    "name": "Prints in the National Gallery of Art",
+    "wikidata_url": "https://www.wikidata.org/wiki/Q64946756",
+    "country": "United States",
+    "city": "Washington, D.C.",
+    "lat": 38.891388888,
+    "lng": -77.02,
+    "parent_qid": "Q214867"
+  },
+  {
+    "qid": "Q114159639",
+    "name": "Capitoline Pinacotheca",
+    "wikidata_url": "https://www.wikidata.org/wiki/Q114159639",
+    "country": "Italy",
+    "city": "Municipio II",
+    "lat": 41.893055555,
+    "lng": 12.482777777,
+    "parent_qid": "Q333906"
+  },
+  {
+    "qid": "Q124039071",
+    "name": "Victoria and Albert museum prints, drawings, & paintings collection",
+    "wikidata_url": "https://www.wikidata.org/wiki/Q124039071",
+    "country": "United Kingdom",
+    "city": "Royal Borough of Kensington and Chelsea",
+    "lat": 51.49685,
+    "lng": -0.17162,
+    "parent_qid": "Q213322"
+  },
+  {
+    "qid": "Q131311370",
+    "name": "Victoria and Albert museum ceramics collection",
+    "wikidata_url": "https://www.wikidata.org/wiki/Q131311370",
+    "country": "United Kingdom",
+    "city": "Royal Borough of Kensington and Chelsea",
+    "lat": 51.49685,
+    "lng": -0.17162,
+    "parent_qid": "Q213322"
+  },
+  {
+    "qid": "Q131311420",
+    "name": "Victoria and Albert museum metalwork collection",
+    "wikidata_url": "https://www.wikidata.org/wiki/Q131311420",
+    "country": "United Kingdom",
+    "city": "Royal Borough of Kensington and Chelsea",
+    "lat": 51.49685,
+    "lng": -0.17162,
+    "parent_qid": "Q213322"
+  },
+  {
+    "qid": "Q131311445",
+    "name": "Victoria and Albert museum sculpture collection",
+    "wikidata_url": "https://www.wikidata.org/wiki/Q131311445",
+    "country": "United Kingdom",
+    "city": "Royal Borough of Kensington and Chelsea",
+    "lat": 51.49685,
+    "lng": -0.17162,
+    "parent_qid": "Q213322"
+  },
+  {
+    "qid": "Q131311478",
+    "name": "Victoria and Albert museum Middle East collection",
+    "wikidata_url": "https://www.wikidata.org/wiki/Q131311478",
+    "country": "United Kingdom",
+    "city": "Royal Borough of Kensington and Chelsea",
+    "lat": 51.49685,
+    "lng": -0.17162,
+    "parent_qid": "Q213322"
+  },
+  {
+    "qid": "Q131311508",
+    "name": "Victoria and Albert museum furniture and woodwork collection",
+    "wikidata_url": "https://www.wikidata.org/wiki/Q131311508",
+    "country": "United Kingdom",
+    "city": "Royal Borough of Kensington and Chelsea",
+    "lat": 51.49685,
+    "lng": -0.17162,
+    "parent_qid": "Q213322"
+  },
+  {
     "qid": "Q179506",
     "name": "Tierradentro",
     "wikidata_url": "https://www.wikidata.org/wiki/Q179506",
@@ -4498,735 +5228,5 @@
     "city": "Steglitz-Zehlendorf",
     "lat": 52.4672,
     "lng": 13.2614
-  },
-  {
-    "qid": "Q475394",
-    "name": "Antikensammlung Berlin",
-    "wikidata_url": "https://www.wikidata.org/wiki/Q475394",
-    "country": "Germany",
-    "city": "Bezirk Mitte",
-    "lat": 52.5194,
-    "lng": 13.3983,
-    "parent_qid": "Q157298"
-  },
-  {
-    "qid": "Q3044747",
-    "name": "Department of Greek, Etruscan, and Roman Antiquities of the Louvre",
-    "wikidata_url": "https://www.wikidata.org/wiki/Q3044747",
-    "country": "France",
-    "city": "Saint-Germain-l'Auxerrois",
-    "lat": 48.861111111,
-    "lng": 2.335833333,
-    "parent_qid": "Q19675"
-  },
-  {
-    "qid": "Q913058",
-    "name": "Vasari Corridor",
-    "wikidata_url": "https://www.wikidata.org/wiki/Q913058",
-    "country": "Italy",
-    "city": "Florence",
-    "lat": 43.768997,
-    "lng": 11.256379,
-    "parent_qid": "Q51252"
-  },
-  {
-    "qid": "Q683074",
-    "name": "Borghese Collection",
-    "wikidata_url": "https://www.wikidata.org/wiki/Q683074",
-    "country": "France",
-    "city": "Saint-Germain-l'Auxerrois",
-    "lat": 48.861111111,
-    "lng": 2.335833333,
-    "parent_qid": "Q19675"
-  },
-  {
-    "qid": "Q672373",
-    "name": "Ephesos Museum",
-    "wikidata_url": "https://www.wikidata.org/wiki/Q672373",
-    "country": "Austria",
-    "city": "Vienna",
-    "lat": 48.2055,
-    "lng": 16.3652,
-    "parent_qid": "Q95569"
-  },
-  {
-    "qid": "Q526381",
-    "name": "Gregorian Egyptian Museum",
-    "wikidata_url": "https://www.wikidata.org/wiki/Q526381",
-    "country": "Vatican City",
-    "city": "Vatican City",
-    "lat": 41.9064,
-    "lng": 12.4546,
-    "parent_qid": "Q182955"
-  },
-  {
-    "qid": "Q774940",
-    "name": "Pinacoteca Vaticana",
-    "wikidata_url": "https://www.wikidata.org/wiki/Q774940",
-    "country": "Vatican City",
-    "city": "Vatican City",
-    "lat": 41.90573,
-    "lng": 12.45277,
-    "parent_qid": "Q182955"
-  },
-  {
-    "qid": "Q1439912",
-    "name": "Pio-Clementino museum",
-    "wikidata_url": "https://www.wikidata.org/wiki/Q1439912",
-    "country": "Vatican City",
-    "city": "Vatican City",
-    "lat": 41.906731,
-    "lng": 12.453515,
-    "parent_qid": "Q182955"
-  },
-  {
-    "qid": "Q3044748",
-    "name": "Department of Islamic Arts of the Louvre",
-    "wikidata_url": "https://www.wikidata.org/wiki/Q3044748",
-    "country": "France",
-    "city": "Saint-Germain-l'Auxerrois",
-    "lat": 48.861111111,
-    "lng": 2.335833333,
-    "parent_qid": "Q19675"
-  },
-  {
-    "qid": "Q1452723",
-    "name": "Museo Chiaramonti",
-    "wikidata_url": "https://www.wikidata.org/wiki/Q1452723",
-    "country": "Vatican City",
-    "city": "Vatican City",
-    "lat": 41.904389,
-    "lng": 12.455111,
-    "parent_qid": "Q182955"
-  },
-  {
-    "qid": "Q1452738",
-    "name": "Gregorian Etruscan Museum",
-    "wikidata_url": "https://www.wikidata.org/wiki/Q1452738",
-    "country": "Vatican City",
-    "city": "Vatican City",
-    "lat": 41.906677777,
-    "lng": 12.454847222,
-    "parent_qid": "Q182955"
-  },
-  {
-    "qid": "Q3044749",
-    "name": "Department of Egyptian Antiquities of the Louvre",
-    "wikidata_url": "https://www.wikidata.org/wiki/Q3044749",
-    "country": "France",
-    "city": "Paris",
-    "lat": 48.861111111,
-    "lng": 2.335833333,
-    "parent_qid": "Q19675"
-  },
-  {
-    "qid": "Q3523",
-    "name": "Secret Museum",
-    "wikidata_url": "https://www.wikidata.org/wiki/Q3523",
-    "country": "Italy",
-    "city": "Naples",
-    "lat": 40.85337778,
-    "lng": 14.25048611,
-    "parent_qid": "Q637248"
-  },
-  {
-    "qid": "Q4132371",
-    "name": "Gallery of the Candelabra",
-    "wikidata_url": "https://www.wikidata.org/wiki/Q4132371",
-    "country": "Vatican City",
-    "city": "Vatican City",
-    "lat": 41.906388888,
-    "lng": 12.454444444,
-    "parent_qid": "Q182955"
-  },
-  {
-    "qid": "Q61781807",
-    "name": "Drawing and Prints Department of the Metropolitan Museum of Art",
-    "wikidata_url": "https://www.wikidata.org/wiki/Q61781807",
-    "country": "United States",
-    "city": "Manhattan",
-    "lat": 40.779444444,
-    "lng": -73.963333333,
-    "parent_qid": "Q160236"
-  },
-  {
-    "qid": "Q3868391",
-    "name": "Gregoriano Profano Museum",
-    "wikidata_url": "https://www.wikidata.org/wiki/Q3868391",
-    "country": "Vatican City",
-    "city": "Vatican City",
-    "lat": 41.9062,
-    "lng": 12.4526,
-    "parent_qid": "Q182955"
-  },
-  {
-    "qid": "Q2318005",
-    "name": "Museo Pio Cristiano",
-    "wikidata_url": "https://www.wikidata.org/wiki/Q2318005",
-    "country": "Vatican City",
-    "city": "Vatican City",
-    "lat": 41.9065,
-    "lng": 12.4538,
-    "parent_qid": "Q182955"
-  },
-  {
-    "qid": "Q2034945",
-    "name": "Collection of Modern Religious Art, Vatican Museums",
-    "wikidata_url": "https://www.wikidata.org/wiki/Q2034945",
-    "country": "Vatican City",
-    "city": "Vatican City",
-    "lat": 41.903333333,
-    "lng": 12.455,
-    "parent_qid": "Q182955"
-  },
-  {
-    "qid": "Q542084",
-    "name": "Vorderasiatisches Museum Berlin",
-    "wikidata_url": "https://www.wikidata.org/wiki/Q542084",
-    "country": "Germany",
-    "city": "Berlin",
-    "lat": 52.52069444,
-    "lng": 13.39680556,
-    "parent_qid": "Q157298"
-  },
-  {
-    "qid": "Q3106632",
-    "name": "Gilman Paper Company collection",
-    "wikidata_url": "https://www.wikidata.org/wiki/Q3106632",
-    "country": "United States",
-    "city": "Manhattan",
-    "lat": 40.779444444,
-    "lng": -73.963333333,
-    "parent_qid": "Q160236"
-  },
-  {
-    "qid": "Q67429134",
-    "name": "European Paintings",
-    "wikidata_url": "https://www.wikidata.org/wiki/Q67429134",
-    "country": "United States",
-    "city": "Manhattan",
-    "lat": 40.779444444,
-    "lng": -73.963333333,
-    "parent_qid": "Q160236"
-  },
-  {
-    "qid": "Q19750488",
-    "name": "collection Adriaan van der Hoop",
-    "wikidata_url": "https://www.wikidata.org/wiki/Q19750488",
-    "country": "Netherlands",
-    "city": "Amsterdam",
-    "lat": 52.36,
-    "lng": 4.885277777,
-    "parent_qid": "Q190804"
-  },
-  {
-    "qid": "Q55664912",
-    "name": "Department of Egyptian Art, Metropolitan Museum of Art",
-    "wikidata_url": "https://www.wikidata.org/wiki/Q55664912",
-    "country": "United States",
-    "city": "Manhattan",
-    "lat": 40.779444444,
-    "lng": -73.963333333,
-    "parent_qid": "Q160236"
-  },
-  {
-    "qid": "Q23417356",
-    "name": "V&A Wedgwood Collection",
-    "wikidata_url": "https://www.wikidata.org/wiki/Q23417356",
-    "country": "United Kingdom",
-    "city": "City of Stoke-on-Trent",
-    "lat": 52.951892,
-    "lng": -2.17081,
-    "parent_qid": "Q213322"
-  },
-  {
-    "qid": "Q570620",
-    "name": "Kupferstich-Kabinett Dresden",
-    "wikidata_url": "https://www.wikidata.org/wiki/Q570620",
-    "country": "Germany",
-    "city": "Dresden",
-    "lat": 51.0527,
-    "lng": 13.7369,
-    "parent_qid": "Q653002"
-  },
-  {
-    "qid": "Q26898264",
-    "name": "Berlin Papyrus Collection",
-    "wikidata_url": "https://www.wikidata.org/wiki/Q26898264",
-    "country": "Germany",
-    "city": "Berlin",
-    "lat": 52.520238888,
-    "lng": 13.397741666,
-    "parent_qid": "Q254156"
-  },
-  {
-    "qid": "Q707407",
-    "name": "Green Vault",
-    "wikidata_url": "https://www.wikidata.org/wiki/Q707407",
-    "country": "Germany",
-    "city": "Dresden",
-    "lat": 51.0528,
-    "lng": 13.7364,
-    "parent_qid": "Q653002"
-  },
-  {
-    "qid": "Q644281",
-    "name": "Young V&A",
-    "wikidata_url": "https://www.wikidata.org/wiki/Q644281",
-    "country": "United Kingdom",
-    "city": "London Borough of Tower Hamlets",
-    "lat": 51.529055555,
-    "lng": -0.054888888,
-    "parent_qid": "Q213322"
-  },
-  {
-    "qid": "Q869690",
-    "name": "Skulpturensammlung Dresden",
-    "wikidata_url": "https://www.wikidata.org/wiki/Q869690",
-    "country": "Germany",
-    "city": "Dresden",
-    "lat": 51.0519,
-    "lng": 13.7444,
-    "parent_qid": "Q653002"
-  },
-  {
-    "qid": "Q46596638",
-    "name": "Andrew W. Mellon collection",
-    "wikidata_url": "https://www.wikidata.org/wiki/Q46596638",
-    "country": "United States",
-    "city": "Washington, D.C.",
-    "lat": 38.891388888,
-    "lng": -77.02,
-    "parent_qid": "Q214867"
-  },
-  {
-    "qid": "Q118016396",
-    "name": "Getty Villa Collection",
-    "wikidata_url": "https://www.wikidata.org/wiki/Q118016396",
-    "country": "United States",
-    "city": "Los Angeles",
-    "lat": 34.0775,
-    "lng": -118.475,
-    "parent_qid": "Q731126"
-  },
-  {
-    "qid": "Q3044751",
-    "name": "Department of Near Eastern Antiquities of the Louvre",
-    "wikidata_url": "https://www.wikidata.org/wiki/Q3044751",
-    "country": "France",
-    "city": "Saint-Germain-l'Auxerrois",
-    "lat": 48.861530555,
-    "lng": 2.337608333,
-    "parent_qid": "Q19675"
-  },
-  {
-    "qid": "Q62101859",
-    "name": "Widener Collection",
-    "wikidata_url": "https://www.wikidata.org/wiki/Q62101859",
-    "country": "United States",
-    "city": "Washington, D.C.",
-    "lat": 38.891388888,
-    "lng": -77.02,
-    "parent_qid": "Q214867"
-  },
-  {
-    "qid": "Q2000542",
-    "name": "Saint Michael's Castle",
-    "wikidata_url": "https://www.wikidata.org/wiki/Q2000542",
-    "country": "Russia",
-    "city": "Saint Petersburg",
-    "lat": 59.940416666,
-    "lng": 30.337638888,
-    "parent_qid": "Q211043"
-  },
-  {
-    "qid": "Q19478938",
-    "name": "Rijksprentenkabinet",
-    "wikidata_url": "https://www.wikidata.org/wiki/Q19478938",
-    "country": "Netherlands",
-    "city": "Amsterdam",
-    "lat": 52.36,
-    "lng": 4.885277777,
-    "parent_qid": "Q190804"
-  },
-  {
-    "qid": "Q321088",
-    "name": "Mathematisch-Physikalischer Salon",
-    "wikidata_url": "https://www.wikidata.org/wiki/Q321088",
-    "country": "Germany",
-    "city": "Dresden",
-    "lat": 51.0532,
-    "lng": 13.7328,
-    "parent_qid": "Q653002"
-  },
-  {
-    "qid": "Q324263",
-    "name": "M\u00fcnzkabinett",
-    "wikidata_url": "https://www.wikidata.org/wiki/Q324263",
-    "country": "Germany",
-    "city": "Dresden",
-    "lat": 51.0527,
-    "lng": 13.7369,
-    "parent_qid": "Q653002"
-  },
-  {
-    "qid": "Q3044753",
-    "name": "Department of Prints and Drawings of the Louvre",
-    "wikidata_url": "https://www.wikidata.org/wiki/Q3044753",
-    "country": "France",
-    "city": "Saint-Germain-l'Auxerrois",
-    "lat": 48.861111111,
-    "lng": 2.335833333,
-    "parent_qid": "Q19675"
-  },
-  {
-    "qid": "Q62104323",
-    "name": "Decorative arts in the National Gallery of Art",
-    "wikidata_url": "https://www.wikidata.org/wiki/Q62104323",
-    "country": "United States",
-    "city": "Washington, D.C.",
-    "lat": 38.891388888,
-    "lng": -77.02,
-    "parent_qid": "Q214867"
-  },
-  {
-    "qid": "Q62274660",
-    "name": "Rosenwald Collection",
-    "wikidata_url": "https://www.wikidata.org/wiki/Q62274660",
-    "country": "United States",
-    "city": "Washington, D.C.",
-    "lat": 38.891388888,
-    "lng": -77.02,
-    "parent_qid": "Q214867"
-  },
-  {
-    "qid": "Q3044767",
-    "name": "Department of Decorative Arts of the Louvre",
-    "wikidata_url": "https://www.wikidata.org/wiki/Q3044767",
-    "country": "France",
-    "city": "Saint-Germain-l'Auxerrois",
-    "lat": 48.861111111,
-    "lng": 2.335833333,
-    "parent_qid": "Q19675"
-  },
-  {
-    "qid": "Q3044768",
-    "name": "Department of Paintings of the Louvre",
-    "wikidata_url": "https://www.wikidata.org/wiki/Q3044768",
-    "country": "France",
-    "city": "Saint-Germain-l'Auxerrois",
-    "lat": 48.861111111,
-    "lng": 2.335833333,
-    "parent_qid": "Q19675"
-  },
-  {
-    "qid": "Q3044772",
-    "name": "Department of Sculptures of the Louvre",
-    "wikidata_url": "https://www.wikidata.org/wiki/Q3044772",
-    "country": "France",
-    "city": "Saint-Germain-l'Auxerrois",
-    "lat": 48.861111111,
-    "lng": 2.335833333,
-    "parent_qid": "Q19675"
-  },
-  {
-    "qid": "Q3112929",
-    "name": "Kunstkammer Wien",
-    "wikidata_url": "https://www.wikidata.org/wiki/Q3112929",
-    "country": "Austria",
-    "city": "Vienna",
-    "lat": 48.203880555,
-    "lng": 16.3616,
-    "parent_qid": "Q95569"
-  },
-  {
-    "qid": "Q3683040",
-    "name": "Contini Bonacossi collection",
-    "wikidata_url": "https://www.wikidata.org/wiki/Q3683040",
-    "country": "Italy",
-    "city": "Florence",
-    "lat": 43.7687,
-    "lng": 11.2549,
-    "parent_qid": "Q51252"
-  },
-  {
-    "qid": "Q3869272",
-    "name": "M\u00fcnzkabinett",
-    "wikidata_url": "https://www.wikidata.org/wiki/Q3869272",
-    "country": "Austria",
-    "city": "Vienna",
-    "lat": 48.204658388,
-    "lng": 16.360611298,
-    "parent_qid": "Q95569"
-  },
-  {
-    "qid": "Q3756440",
-    "name": "Gabinetto dei disegni e delle stampe",
-    "wikidata_url": "https://www.wikidata.org/wiki/Q3756440",
-    "country": "Italy",
-    "city": "Florence",
-    "lat": 43.768997,
-    "lng": 11.256379,
-    "parent_qid": "Q51252"
-  },
-  {
-    "qid": "Q21004295",
-    "name": "Rose-Marie and Eijk van Otterloo Collection",
-    "wikidata_url": "https://www.wikidata.org/wiki/Q21004295",
-    "country": "United States",
-    "city": "Massachusetts",
-    "lat": 42.339444444,
-    "lng": -71.094166666,
-    "parent_qid": "Q49133"
-  },
-  {
-    "qid": "Q106824040",
-    "name": "service de l'Histoire du Louvre",
-    "wikidata_url": "https://www.wikidata.org/wiki/Q106824040",
-    "country": "France",
-    "city": "Saint-Germain-l'Auxerrois",
-    "lat": 48.861111111,
-    "lng": 2.335833333,
-    "parent_qid": "Q19675"
-  },
-  {
-    "qid": "Q106349126",
-    "name": "sculptures from the gardens of the Louvre Museum",
-    "wikidata_url": "https://www.wikidata.org/wiki/Q106349126",
-    "country": "France",
-    "city": "Saint-Germain-l'Auxerrois",
-    "lat": 48.861111111,
-    "lng": 2.335833333,
-    "parent_qid": "Q19675"
-  },
-  {
-    "qid": "Q121354106",
-    "name": "departement of the Byzantine Arts  and the Eastern Christians in the Louvre Museum",
-    "wikidata_url": "https://www.wikidata.org/wiki/Q121354106",
-    "country": "France",
-    "city": "Saint-Germain-l'Auxerrois",
-    "lat": 48.861111111,
-    "lng": 2.335833333,
-    "parent_qid": "Q19675"
-  },
-  {
-    "qid": "Q28195189",
-    "name": "British Museum Department of the Middle East",
-    "wikidata_url": "https://www.wikidata.org/wiki/Q28195189",
-    "country": "United Kingdom",
-    "city": "London Borough of Camden",
-    "lat": 51.51915,
-    "lng": -0.12814,
-    "parent_qid": "Q6373"
-  },
-  {
-    "qid": "Q47515850",
-    "name": "British Museum Department of Greece and Rome",
-    "wikidata_url": "https://www.wikidata.org/wiki/Q47515850",
-    "country": "United Kingdom",
-    "city": "London Borough of Camden",
-    "lat": 51.519444444,
-    "lng": -0.126944444,
-    "parent_qid": "Q6373"
-  },
-  {
-    "qid": "Q47404068",
-    "name": "Susan and Matthew Weatherbie Collection",
-    "wikidata_url": "https://www.wikidata.org/wiki/Q47404068",
-    "country": "United States",
-    "city": "Massachusetts",
-    "lat": 42.339444444,
-    "lng": -71.094166666,
-    "parent_qid": "Q49133"
-  },
-  {
-    "qid": "Q28162699",
-    "name": "British Museum Department of Ancient Egypt and Sudan",
-    "wikidata_url": "https://www.wikidata.org/wiki/Q28162699",
-    "country": "United Kingdom",
-    "city": "London Borough of Camden",
-    "lat": 51.519338888,
-    "lng": -0.127741666,
-    "parent_qid": "Q6373"
-  },
-  {
-    "qid": "Q45993794",
-    "name": "British Museum Department of Prints and Drawings",
-    "wikidata_url": "https://www.wikidata.org/wiki/Q45993794",
-    "country": "United Kingdom",
-    "city": "London Borough of Camden",
-    "lat": 51.519444444,
-    "lng": -0.126944444,
-    "parent_qid": "Q6373"
-  },
-  {
-    "qid": "Q62274663",
-    "name": "Samuel H. Kress Collection of the National Gallery of Art",
-    "wikidata_url": "https://www.wikidata.org/wiki/Q62274663",
-    "country": "United States",
-    "city": "Washington, D.C.",
-    "lat": 38.891388888,
-    "lng": -77.02,
-    "parent_qid": "Q214867"
-  },
-  {
-    "qid": "Q62274675",
-    "name": "Ailsa Mellon Bruce Collection",
-    "wikidata_url": "https://www.wikidata.org/wiki/Q62274675",
-    "country": "United States",
-    "city": "Washington, D.C.",
-    "lat": 38.891388888,
-    "lng": -77.02,
-    "parent_qid": "Q214867"
-  },
-  {
-    "qid": "Q62275030",
-    "name": "Corcoran Collection (William A. Clark Collection)",
-    "wikidata_url": "https://www.wikidata.org/wiki/Q62275030",
-    "country": "United States",
-    "city": "Washington, D.C.",
-    "lat": 38.891388888,
-    "lng": -77.02,
-    "parent_qid": "Q214867"
-  },
-  {
-    "qid": "Q62274788",
-    "name": "Harry G. Steele Collection",
-    "wikidata_url": "https://www.wikidata.org/wiki/Q62274788",
-    "country": "United States",
-    "city": "Washington, D.C.",
-    "lat": 38.891388888,
-    "lng": -77.02,
-    "parent_qid": "Q214867"
-  },
-  {
-    "qid": "Q62470316",
-    "name": "Media Arts in the National Gallery of Art",
-    "wikidata_url": "https://www.wikidata.org/wiki/Q62470316",
-    "country": "United States",
-    "city": "Washington, D.C.",
-    "lat": 38.891388888,
-    "lng": -77.02,
-    "parent_qid": "Q214867"
-  },
-  {
-    "qid": "Q63806982",
-    "name": "Sculptures in the National Gallery of Art",
-    "wikidata_url": "https://www.wikidata.org/wiki/Q63806982",
-    "country": "United States",
-    "city": "Washington, D.C.",
-    "lat": 38.891388888,
-    "lng": -77.02,
-    "parent_qid": "Q214867"
-  },
-  {
-    "qid": "Q64029356",
-    "name": "Photographs in the National Gallery of Art",
-    "wikidata_url": "https://www.wikidata.org/wiki/Q64029356",
-    "country": "United States",
-    "city": "Washington, D.C.",
-    "lat": 38.891388888,
-    "lng": -77.02,
-    "parent_qid": "Q214867"
-  },
-  {
-    "qid": "Q64429869",
-    "name": "Index of American Design",
-    "wikidata_url": "https://www.wikidata.org/wiki/Q64429869",
-    "country": "United States",
-    "city": "Washington, D.C.",
-    "lat": 38.891388888,
-    "lng": -77.02,
-    "parent_qid": "Q214867"
-  },
-  {
-    "qid": "Q64532898",
-    "name": "drawings in the National Gallery of Art",
-    "wikidata_url": "https://www.wikidata.org/wiki/Q64532898",
-    "country": "United States",
-    "city": "Washington, D.C.",
-    "lat": 38.891388888,
-    "lng": -77.02,
-    "parent_qid": "Q214867"
-  },
-  {
-    "qid": "Q64946756",
-    "name": "Prints in the National Gallery of Art",
-    "wikidata_url": "https://www.wikidata.org/wiki/Q64946756",
-    "country": "United States",
-    "city": "Washington, D.C.",
-    "lat": 38.891388888,
-    "lng": -77.02,
-    "parent_qid": "Q214867"
-  },
-  {
-    "qid": "Q114159639",
-    "name": "Capitoline Pinacotheca",
-    "wikidata_url": "https://www.wikidata.org/wiki/Q114159639",
-    "country": "Italy",
-    "city": "Municipio II",
-    "lat": 41.893055555,
-    "lng": 12.482777777,
-    "parent_qid": "Q333906"
-  },
-  {
-    "qid": "Q124039071",
-    "name": "Victoria and Albert museum prints, drawings, & paintings collection",
-    "wikidata_url": "https://www.wikidata.org/wiki/Q124039071",
-    "country": "United Kingdom",
-    "city": "Royal Borough of Kensington and Chelsea",
-    "lat": 51.49685,
-    "lng": -0.17162,
-    "parent_qid": "Q213322"
-  },
-  {
-    "qid": "Q131311370",
-    "name": "Victoria and Albert museum ceramics collection",
-    "wikidata_url": "https://www.wikidata.org/wiki/Q131311370",
-    "country": "United Kingdom",
-    "city": "Royal Borough of Kensington and Chelsea",
-    "lat": 51.49685,
-    "lng": -0.17162,
-    "parent_qid": "Q213322"
-  },
-  {
-    "qid": "Q131311420",
-    "name": "Victoria and Albert museum metalwork collection",
-    "wikidata_url": "https://www.wikidata.org/wiki/Q131311420",
-    "country": "United Kingdom",
-    "city": "Royal Borough of Kensington and Chelsea",
-    "lat": 51.49685,
-    "lng": -0.17162,
-    "parent_qid": "Q213322"
-  },
-  {
-    "qid": "Q131311445",
-    "name": "Victoria and Albert museum sculpture collection",
-    "wikidata_url": "https://www.wikidata.org/wiki/Q131311445",
-    "country": "United Kingdom",
-    "city": "Royal Borough of Kensington and Chelsea",
-    "lat": 51.49685,
-    "lng": -0.17162,
-    "parent_qid": "Q213322"
-  },
-  {
-    "qid": "Q131311478",
-    "name": "Victoria and Albert museum Middle East collection",
-    "wikidata_url": "https://www.wikidata.org/wiki/Q131311478",
-    "country": "United Kingdom",
-    "city": "Royal Borough of Kensington and Chelsea",
-    "lat": 51.49685,
-    "lng": -0.17162,
-    "parent_qid": "Q213322"
-  },
-  {
-    "qid": "Q131311508",
-    "name": "Victoria and Albert museum furniture and woodwork collection",
-    "wikidata_url": "https://www.wikidata.org/wiki/Q131311508",
-    "country": "United Kingdom",
-    "city": "Royal Borough of Kensington and Chelsea",
-    "lat": 51.49685,
-    "lng": -0.17162,
-    "parent_qid": "Q213322"
   }
 ]
