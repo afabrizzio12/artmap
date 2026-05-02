@@ -2,8 +2,11 @@ name: Ingest Wikidata
 
 on:
   schedule:
-    # Daily at 03:00 UTC — after the Met job (02:00 UTC)
+    # 4× daily — 03:00, 09:00, 15:00, 21:00 UTC
     - cron: "0 3 * * *"
+    - cron: "0 9 * * *"
+    - cron: "0 15 * * *"
+    - cron: "0 21 * * *"
   workflow_dispatch:
     inputs:
       daily_limit:
