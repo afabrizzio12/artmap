@@ -1,0 +1,553 @@
+#!/usr/bin/env python3
+"""
+ArtMap — Wikidata ingestion script  (institution-first strategy)
+================================================================
+
+Why institution-first?
+  SPARQL global queries (type=painting, ORDER BY, OFFSET N) time out beyond
+  OFFSET ~500 because Wikidata must scan the entire preceding result set.
+
+  Instead we:
+    1. Build an institution index: all art museums worldwide with coordinates.
+       (One fast query per page, ~2000 museums per page, no heavy joins.)
+    2. For each institution, fetch its artworks.
+       (Bounded per-institution queries — fast, resumable, naturally diverse.)
+
+  This gives us 50,000+ institutions across every country, which is exactly
+  the geographic diversity ArtMap needs.
+
+Why Wikidata:
+  - Only *notable* artworks get a Wikidata entry → built-in quality filter
+  - 50,000+ institutions worldwide → maximum geographic diversity
+  - Knowledge graph: artist teacher/student, movements, periods
+  - Coordinates on every institution → every artwork gets a map pin
+  - Free, no API key, CC0 data
+
+Usage:
+    # Step 1 (first time only): build the institution index
+    python ingest_wikidata.py --build-index
+
+    # Step 2 (daily): ingest artworks, iterating through institutions
+    python ingest_wikidata.py
+    python ingest_wikidata.py --daily-limit 5000
+    python ingest_wikidata.py --reset   # clear state and restart
+
+Output:
+    output/wikidata/institutions.json    index of all art museums (built once)
+    output/wikidata/artworks.ndjson      normalised artworks (appended daily)
+    output/wikidata/ingest_state.json    progress state
+"""
+
+import argparse
+import json
+import logging
+import re
+import sys
+import time
+from datetime import datetime, timezone
+from pathlib import Path
+
+import requests
+
+# ---------------------------------------------------------------------------
+# Config
+# ---------------------------------------------------------------------------
+
+SPARQL_ENDPOINT = "https://query.wikidata.org/sparql"
+USER_AGENT = "ArtMap/0.1 (https://github.com/afabrizzio12/artmap; contact via GitHub)"
+
+# Wikidata rate limit: be polite
+REQUEST_DELAY = 2.0          # seconds between SPARQL requests
+INST_PAGE_SIZE = 2000        # institutions per SPARQL page
+ARTWORK_PAGE_SIZE = 1000     # artworks per institution (most have <500)
+
+OUTPUT_DIR = Path(__file__).parent.parent / "output" / "wikidata"
+INSTITUTIONS_FILE = OUTPUT_DIR / "institutions.json"
+STATE_FILE = OUTPUT_DIR / "ingest_state.json"
+
+# Institution types to include — art museums + art galleries + similar
+INSTITUTION_TYPE_QIDS = [
+    "wd:Q207694",   # art museum
+    "wd:Q1007870",  # art gallery
+    "wd:Q856234",   # art museum (alt)
+    "wd:Q33506",    # museum (broader, captures smaller local museums)
+]
+
+# Artwork types that indicate fine art
+ARTWORK_TYPE_QIDS = [
+    "wd:Q3305213",   # painting
+    "wd:Q860861",    # sculpture
+    "wd:Q93184",     # drawing
+    "wd:Q11835431",  # print (artwork)
+    "wd:Q125191",    # photograph
+    "wd:Q15123870",  # work of art (generic fallback)
+]
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(message)s",
+    handlers=[logging.StreamHandler(sys.stdout)],
+)
+log = logging.getLogger(__name__)
+
+# ---------------------------------------------------------------------------
+# SPARQL helpers
+# ---------------------------------------------------------------------------
+
+session = requests.Session()
+session.headers.update({
+    "User-Agent": USER_AGENT,
+    "Accept": "application/sparql-results+json",
+})
+
+
+def sparql(query: str, timeout: int = 50) -> list[dict]:
+    resp = session.get(
+        SPARQL_ENDPOINT,
+        params={"query": query, "format": "json"},
+        timeout=timeout,
+    )
+    if resp.status_code == 429:
+        retry_after = int(resp.headers.get("Retry-After", 60))
+        log.warning(f"429 Too Many Requests — sleeping {retry_after}s")
+        time.sleep(retry_after)
+        # Retry once after back-off
+        resp = session.get(
+            SPARQL_ENDPOINT,
+            params={"query": query, "format": "json"},
+            timeout=timeout,
+        )
+    resp.raise_for_status()
+    return resp.json().get("results", {}).get("bindings", [])
+
+
+def val(b: dict, key: str) -> str | None:
+    return b.get(key, {}).get("value") or None
+
+
+def parse_point(wkt: str | None) -> tuple[float | None, float | None]:
+    """Extract (lat, lng) from WKT like 'Point(2.3522 48.8566)'."""
+    if not wkt:
+        return None, None
+    m = re.search(r"Point\(([^\s]+)\s+([^\)]+)\)", wkt)
+    if not m:
+        return None, None
+    try:
+        return float(m.group(2)), float(m.group(1))   # lat, lng
+    except ValueError:
+        return None, None
+
+
+# ---------------------------------------------------------------------------
+# Phase 1 — build institution index
+# ---------------------------------------------------------------------------
+
+INSTITUTION_INDEX_QUERY = """
+SELECT ?inst ?instLabel ?coords ?country ?countryLabel ?city ?cityLabel
+WHERE {{
+  ?inst wdt:P31/wdt:P279* {type_qid} .
+  ?inst wdt:P625 ?coords .
+  OPTIONAL {{ ?inst wdt:P17 ?country }}
+  OPTIONAL {{ ?inst wdt:P131 ?city }}
+  SERVICE wikibase:label {{ bd:serviceParam wikibase:language "en,fr,de,es,it,nl,pt,ru" . }}
+}}
+LIMIT {limit}
+OFFSET {offset}
+"""
+
+
+def fetch_institution_page(type_qid: str, offset: int) -> list[dict]:
+    """Fetch one page of institutions of the given type."""
+    query = INSTITUTION_INDEX_QUERY.format(
+        type_qid=type_qid,
+        limit=INST_PAGE_SIZE,
+        offset=offset,
+    )
+    return sparql(query)
+
+
+def build_institution_index() -> list[dict]:
+    """Fetch all art museums with coordinates from Wikidata.
+
+    Queries one institution type at a time (single-type queries are fast;
+    multi-type VALUES + DISTINCT times out on large result sets).
+    """
+    seen_qids: set[str] = set()
+    all_institutions: list[dict] = []
+
+    log.info("Building institution index from Wikidata...")
+
+    for type_qid in INSTITUTION_TYPE_QIDS:
+        log.info(f"  Type: {type_qid}")
+        offset = 0
+        consecutive_errors = 0
+
+        while True:
+            log.info(f"    offset={offset}")
+            try:
+                bindings = fetch_institution_page(type_qid, offset)
+                consecutive_errors = 0
+            except Exception as e:
+                log.warning(f"    Page failed: {e}")
+                consecutive_errors += 1
+                if consecutive_errors >= 3:
+                    log.warning("    Too many errors — moving to next type")
+                    break
+                time.sleep(10)
+                continue
+
+            if not bindings:
+                break
+
+            for b in bindings:
+                inst_uri = val(b, "inst")
+                if not inst_uri:
+                    continue
+                qid = inst_uri.split("/")[-1]
+                if qid in seen_qids:
+                    continue
+                seen_qids.add(qid)
+
+                coords = val(b, "coords")
+                lat, lng = parse_point(coords)
+                if lat is None:
+                    continue    # skip institutions without coordinates
+
+                all_institutions.append({
+                    "qid": qid,
+                    "name": val(b, "instLabel") or qid,
+                    "wikidata_url": inst_uri,
+                    "country": val(b, "countryLabel"),
+                    "city": val(b, "cityLabel"),
+                    "lat": lat,
+                    "lng": lng,
+                })
+
+            log.info(f"    Page done: {len(bindings)} rows | {len(all_institutions)} total so far")
+
+            if len(bindings) < INST_PAGE_SIZE:
+                break
+
+            offset += INST_PAGE_SIZE
+            time.sleep(REQUEST_DELAY)
+
+        time.sleep(REQUEST_DELAY)
+
+    # Deduplicate and sort by QID
+    all_institutions.sort(key=lambda x: int(x["qid"].lstrip("Q")))
+    countries = {i["country"] for i in all_institutions if i["country"]}
+    log.info(f"Institution index complete: {len(all_institutions)} museums in {len(countries)} countries")
+    return all_institutions
+
+
+# ---------------------------------------------------------------------------
+# Phase 2 — fetch artworks per institution
+# ---------------------------------------------------------------------------
+
+ARTWORKS_FOR_INST_QUERY = """
+SELECT ?artwork ?artworkLabel ?image ?type ?typeLabel ?artist ?artistLabel ?inception
+WHERE {{
+  ?artwork wdt:P195 wd:{inst_qid} .
+  ?artwork wdt:P18 ?image .
+  OPTIONAL {{ ?artwork wdt:P31 ?type }}
+  OPTIONAL {{ ?artwork wdt:P170 ?artist }}
+  OPTIONAL {{ ?artwork wdt:P571 ?inception }}
+  SERVICE wikibase:label {{ bd:serviceParam wikibase:language "en,fr,de,es,it,nl,pt,ru" . }}
+}}
+LIMIT {limit}
+OFFSET {offset}
+"""
+
+
+def fetch_artworks_for_institution(inst: dict) -> list[dict]:
+    """Fetch all artworks held by a given institution."""
+    artworks = []
+    seen_qids: set[str] = set()
+    offset = 0
+
+    while True:
+        query = ARTWORKS_FOR_INST_QUERY.format(
+            inst_qid=inst["qid"],
+            limit=ARTWORK_PAGE_SIZE,
+            offset=offset,
+        )
+        try:
+            bindings = sparql(query)
+        except Exception as e:
+            log.warning(f"    [{inst['qid']}] artwork page failed: {e}")
+            break
+
+        if not bindings:
+            break
+
+        for b in bindings:
+            artwork = normalise_artwork(b, inst)
+            if artwork and artwork["source_id"] not in seen_qids:
+                seen_qids.add(artwork["source_id"])
+                artworks.append(artwork)
+
+        if len(bindings) < ARTWORK_PAGE_SIZE:
+            break
+
+        offset += ARTWORK_PAGE_SIZE
+        time.sleep(REQUEST_DELAY)
+
+    return artworks
+
+
+# ---------------------------------------------------------------------------
+# Normalisation
+# ---------------------------------------------------------------------------
+
+def normalise_artwork(b: dict, inst: dict) -> dict | None:
+    artwork_uri = val(b, "artwork")
+    if not artwork_uri:
+        return None
+
+    qid = artwork_uri.split("/")[-1]
+    image_url = val(b, "image")
+    title = val(b, "artworkLabel")
+
+    if not image_url or not title:
+        return None
+    # Skip if title is just the QID (no label available)
+    if title == qid:
+        return None
+
+    artist_uri = val(b, "artist")
+    artist_qid = artist_uri.split("/")[-1] if artist_uri else None
+
+    # Inception year
+    inception_raw = val(b, "inception")
+    inception_year = None
+    if inception_raw:
+        try:
+            inception_year = int(inception_raw[:4])
+        except (ValueError, TypeError):
+            pass
+
+    # Commons thumbnail
+    thumbnail = image_url
+    if "Special:FilePath/" in image_url:
+        filename = image_url.split("Special:FilePath/")[-1]
+        thumbnail = f"https://commons.wikimedia.org/wiki/Special:FilePath/{filename}?width=800"
+
+    return {
+        "id": f"wikidata:{qid}",
+        "source": "wikidata",
+        "source_id": qid,
+        "source_url": f"https://www.wikidata.org/wiki/{qid}",
+        "title": title,
+        "artist": {
+            "name": val(b, "artistLabel"),
+            "display_name": val(b, "artistLabel"),
+            "wikidata_qid": artist_qid,
+            "wikidata_url": val(b, "artist"),
+            # enriched later by enrich_wikidata.py
+            "nationality": None,
+            "student_of_qid": None,
+            "student_of_name": None,
+        },
+        "date": {
+            "display": str(inception_year) if inception_year else None,
+            "year_start": inception_year,
+            "year_end": inception_year,
+        },
+        "classification": {
+            "type": val(b, "typeLabel"),
+            "period": None,   # enriched later
+            "genre": None,    # enriched later
+            "tags": [],
+        },
+        "institution": {
+            "id": inst["qid"],
+            "name": inst["name"],
+            "wikidata_qid": inst["qid"],
+            "wikidata_url": inst["wikidata_url"],
+            "country": inst["country"],
+            "city": inst["city"],
+            "lat": inst["lat"],
+            "lng": inst["lng"],
+        },
+        "geo_origin": {
+            "country": None,   # enriched later
+        },
+        "images": {
+            "primary": image_url,
+            "primary_small": thumbnail,
+            "additional": [],
+        },
+        "is_public_domain": True,
+        "license": "CC0",
+        "wikidata_url": artwork_uri,
+        "ingested_at": datetime.now(timezone.utc).isoformat(),
+    }
+
+
+# ---------------------------------------------------------------------------
+# State helpers
+# ---------------------------------------------------------------------------
+
+def load_state() -> dict:
+    if STATE_FILE.exists():
+        with open(STATE_FILE) as f:
+            return json.load(f)
+    return {}
+
+
+def save_state(state: dict) -> None:
+    with open(STATE_FILE, "w") as f:
+        json.dump(state, f, indent=2)
+
+
+def load_institutions() -> list[dict]:
+    if not INSTITUTIONS_FILE.exists():
+        return []
+    with open(INSTITUTIONS_FILE) as f:
+        return json.load(f)
+
+
+def save_institutions(institutions: list[dict]) -> None:
+    with open(INSTITUTIONS_FILE, "w") as f:
+        json.dump(institutions, f, indent=2)
+
+
+# ---------------------------------------------------------------------------
+# Main
+# ---------------------------------------------------------------------------
+
+def main():
+    parser = argparse.ArgumentParser(description="Ingest artworks from Wikidata (institution-first)")
+    parser.add_argument("--build-index", action="store_true",
+                        help="(Re-)build the institution index and exit")
+    parser.add_argument("--daily-limit", type=int, default=5000,
+                        help="Max artworks to collect per run (default: 5000)")
+    parser.add_argument("--reset", action="store_true",
+                        help="Clear artwork state and restart from first institution")
+    args = parser.parse_args()
+
+    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+
+    # ------------------------------------------------------------------
+    # Step 1: build institution index (or refresh)
+    # ------------------------------------------------------------------
+    if args.build_index:
+        institutions = build_institution_index()
+        save_institutions(institutions)
+        log.info(f"Saved {len(institutions)} institutions to {INSTITUTIONS_FILE}")
+        return
+
+    # ------------------------------------------------------------------
+    # Step 2: incremental artwork ingestion
+    # ------------------------------------------------------------------
+
+    institutions = load_institutions()
+    if not institutions:
+        log.error("No institution index found. Run with --build-index first.")
+        sys.exit(1)
+
+    ndjson_path = OUTPUT_DIR / "artworks.ndjson"
+
+    # Load or reset state
+    if args.reset:
+        if STATE_FILE.exists():
+            STATE_FILE.unlink()
+        if ndjson_path.exists():
+            ndjson_path.unlink()
+        log.info("State reset.")
+    state = load_state()
+
+    completed = state.get("completed", False)
+    if completed:
+        log.info("✅ Wikidata ingestion already complete. Use --reset to restart.")
+        return
+
+    # Resume from last institution index
+    inst_offset = state.get("inst_offset", 0)
+    total_so_far = state.get("total_artworks", 0)
+    seen_artwork_qids: set[str] = set(state.get("seen_qids", []))
+
+    log.info(f"Wikidata ingestion | institutions={len(institutions)} | resuming from #{inst_offset} | "
+             f"artworks so far={total_so_far} | daily_limit={args.daily_limit}")
+
+    artworks_this_run = 0
+    errors = 0
+    CHECKPOINT_EVERY = 200   # write to disk every N artworks
+
+    artworks_buffer: list[dict] = []
+
+    def flush_buffer(final: bool = False) -> None:
+        nonlocal artworks_buffer
+        if not artworks_buffer:
+            return
+        # Always append — "a" mode creates the file if it doesn't exist,
+        # and appends correctly if we're resuming a previous run.
+        with open(ndjson_path, "a") as f:
+            for aw in artworks_buffer:
+                f.write(json.dumps(aw) + "\n")
+        artworks_buffer = []
+
+    i = inst_offset
+    while i < len(institutions) and artworks_this_run < args.daily_limit:
+        inst = institutions[i]
+        log.info(f"[{i+1}/{len(institutions)}] {inst['name']} ({inst.get('country','?')}) — {inst['qid']}")
+
+        try:
+            artworks = fetch_artworks_for_institution(inst)
+        except Exception as e:
+            log.warning(f"  Failed: {e}")
+            errors += 1
+            i += 1
+            time.sleep(REQUEST_DELAY)
+            continue
+
+        new_artworks = [a for a in artworks if a["source_id"] not in seen_artwork_qids]
+        for a in new_artworks:
+            seen_artwork_qids.add(a["source_id"])
+
+        artworks_buffer.extend(new_artworks)
+        artworks_this_run += len(new_artworks)
+        log.info(f"  → {len(new_artworks)} new artworks (total this run: {artworks_this_run})")
+
+        i += 1
+
+        # Checkpoint
+        if len(artworks_buffer) >= CHECKPOINT_EVERY:
+            flush_buffer()
+            save_state({
+                "inst_offset": i,
+                "total_artworks": total_so_far + artworks_this_run,
+                "completed": False,
+                "last_run": datetime.now(timezone.utc).isoformat(),
+                # Don't persist seen_qids — too large; dedup handled in-memory per run
+            })
+            log.info(f"Checkpoint | inst={i}/{len(institutions)} | total={total_so_far + artworks_this_run}")
+
+        time.sleep(REQUEST_DELAY)
+
+    # Final flush
+    flush_buffer(final=True)
+
+    completed = (i >= len(institutions))
+    new_total = total_so_far + artworks_this_run
+    save_state({
+        "inst_offset": i,
+        "total_artworks": new_total,
+        "completed": completed,
+        "last_run": datetime.now(timezone.utc).isoformat(),
+    })
+
+    log.info(f"\n{'='*60}")
+    log.info(f"This run   : {artworks_this_run} new artworks")
+    log.info(f"Total      : {new_total} artworks")
+    log.info(f"Institutions processed: {i}/{len(institutions)}")
+    log.info(f"Errors     : {errors}")
+    if completed:
+        log.info("🎉 Wikidata ingestion COMPLETE — all institutions processed")
+    else:
+        remaining = len(institutions) - i
+        log.info(f"~{remaining} institutions remaining")
+
+
+if __name__ == "__main__":
+    main()

@@ -1,0 +1,100 @@
+name: Ingest Wikidata
+
+on:
+  schedule:
+    # Daily at 03:00 UTC — after the Met job (02:00 UTC)
+    - cron: "0 3 * * *"
+  workflow_dispatch:
+    inputs:
+      daily_limit:
+        description: "Max artworks to fetch this run (default: 5000)"
+        required: false
+        default: "5000"
+      build_index:
+        description: "Rebuild the institution index (set to 'true' to trigger)"
+        required: false
+        default: "false"
+
+jobs:
+  ingest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 330
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Check if ingestion is already complete
+        id: check
+        run: |
+          DONE=$(python3 -c "
+          import json, os
+          f = 'output/wikidata/ingest_state.json'
+          print('true' if os.path.exists(f) and json.load(open(f)).get('completed') else 'false')
+          " 2>/dev/null || echo "false")
+          echo "completed=$DONE" >> $GITHUB_OUTPUT
+          echo "Ingestion already completed: $DONE"
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: pip install -r scripts/requirements.txt
+
+      - name: Build institution index (one-time setup)
+        if: github.event.inputs.build_index == 'true'
+        timeout-minutes: 30
+        run: python scripts/ingest_wikidata.py --build-index
+
+      - name: Commit institution index
+        if: github.event.inputs.build_index == 'true'
+        run: |
+          git config user.name "artmap-bot"
+          git config user.email "artmap-bot@users.noreply.github.com"
+          git add output/wikidata/institutions.json
+          git diff --cached --quiet || git commit -m "chore: rebuild Wikidata institution index ($(wc -l < output/wikidata/institutions.json || echo '?') entries)"
+          git push
+
+      - name: Run artwork ingestion
+        if: steps.check.outputs.completed == 'false' && github.event.inputs.build_index != 'true'
+        timeout-minutes: 290
+        continue-on-error: true
+        run: |
+          LIMIT="${{ github.event.inputs.daily_limit || '5000' }}"
+          python scripts/ingest_wikidata.py --daily-limit $LIMIT
+
+      - name: Commit updated data
+        if: steps.check.outputs.completed == 'false' && github.event.inputs.build_index != 'true'
+        run: |
+          git config user.name "artmap-bot"
+          git config user.email "artmap-bot@users.noreply.github.com"
+          git add output/wikidata/artworks.ndjson output/wikidata/ingest_state.json
+          git diff --cached --quiet || git commit -m "chore: Wikidata ingest $(date -u +'%Y-%m-%d')"
+          git push
+
+      - name: Summary
+        if: steps.check.outputs.completed == 'false' && github.event.inputs.build_index != 'true'
+        run: |
+          python3 -c "
+          import json, os
+          f = 'output/wikidata/ingest_state.json'
+          if not os.path.exists(f):
+              print('No state file yet.')
+          else:
+              s = json.load(open(f))
+              total = s.get('total_artworks', 0)
+              inst_offset = s.get('inst_offset', 0)
+              print(f'Artworks collected : {total}')
+              print(f'Institutions done  : {inst_offset}')
+              if s.get('completed'):
+                  print('Ingestion COMPLETE — all institutions processed')
+              else:
+                  print(f'Last run           : {s.get(\"last_run\",\"?\")}')
+          "
