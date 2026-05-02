@@ -310,12 +310,20 @@ def normalise_artwork(b: dict, inst: dict) -> dict | None:
 
     if not image_url or not title:
         return None
-    # Skip if title is just the QID (no label available)
+    # Skip if title is just the QID (no English/multilingual label resolved)
     if title == qid:
         return None
 
+    # Artist — filter out blank nodes (anonymous artists with no Wikidata entity)
     artist_uri = val(b, "artist")
+    if artist_uri and ".well-known/genid" in artist_uri:
+        artist_uri = None
     artist_qid = artist_uri.split("/")[-1] if artist_uri else None
+
+    # Artist label — label service falls back to bare QID if unresolved
+    artist_label = val(b, "artistLabel")
+    if artist_label and re.match(r"^Q\d+$", artist_label):
+        artist_label = None
 
     # Inception year
     inception_raw = val(b, "inception")
@@ -326,11 +334,16 @@ def normalise_artwork(b: dict, inst: dict) -> dict | None:
         except (ValueError, TypeError):
             pass
 
-    # Commons thumbnail
+    # Commons thumbnail (800px)
     thumbnail = image_url
     if "Special:FilePath/" in image_url:
         filename = image_url.split("Special:FilePath/")[-1]
         thumbnail = f"https://commons.wikimedia.org/wiki/Special:FilePath/{filename}?width=800"
+
+    # Artwork type label — also filter bare QIDs
+    type_label = val(b, "typeLabel")
+    if type_label and re.match(r"^Q\d+$", type_label):
+        type_label = None
 
     return {
         "id": f"wikidata:{qid}",
@@ -339,10 +352,10 @@ def normalise_artwork(b: dict, inst: dict) -> dict | None:
         "source_url": f"https://www.wikidata.org/wiki/{qid}",
         "title": title,
         "artist": {
-            "name": val(b, "artistLabel"),
-            "display_name": val(b, "artistLabel"),
+            "name": artist_label,
+            "display_name": artist_label,
             "wikidata_qid": artist_qid,
-            "wikidata_url": val(b, "artist"),
+            "wikidata_url": artist_uri,
             # enriched later by enrich_wikidata.py
             "nationality": None,
             "student_of_qid": None,
@@ -354,7 +367,7 @@ def normalise_artwork(b: dict, inst: dict) -> dict | None:
             "year_end": inception_year,
         },
         "classification": {
-            "type": val(b, "typeLabel"),
+            "type": type_label,
             "period": None,   # enriched later
             "genre": None,    # enriched later
             "tags": [],
