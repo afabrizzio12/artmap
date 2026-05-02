@@ -63,6 +63,7 @@ jobs:
           git config user.email "artmap-bot@users.noreply.github.com"
           git add output/wikidata/institutions.json
           git diff --cached --quiet || git commit -m "chore: rebuild Wikidata institution index ($(wc -l < output/wikidata/institutions.json || echo '?') entries)"
+          git pull --rebase origin main
           git push
 
       - name: Run artwork ingestion
@@ -80,6 +81,7 @@ jobs:
           git config user.email "artmap-bot@users.noreply.github.com"
           git add output/wikidata/artworks.ndjson output/wikidata/ingest_state.json
           git diff --cached --quiet || git commit -m "chore: Wikidata ingest $(date -u +'%Y-%m-%d')"
+          git pull --rebase origin main
           git push
 
       - name: Summary
