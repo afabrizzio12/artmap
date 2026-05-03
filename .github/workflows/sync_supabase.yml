@@ -1,0 +1,40 @@
+name: Sync to Supabase
+
+on:
+  workflow_dispatch: {}
+  # Also runs automatically after every successful ingest
+  workflow_run:
+    workflows: ["Ingest Wikidata"]
+    types: [completed]
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    # For workflow_run trigger, only run if the ingest actually succeeded
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: pip install -r scripts/requirements.txt
+
+      - name: Sync all ndjson files → Supabase
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+        run: python scripts/migrate_to_supabase.py
+
+      - name: Summary
+        run: |
+          echo "Sync complete. Check Supabase for updated counts."
