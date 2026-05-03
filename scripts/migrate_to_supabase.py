@@ -29,7 +29,7 @@ load_dotenv()
 
 SUPABASE_URL = os.environ["SUPABASE_URL"]
 SUPABASE_KEY = os.environ["SUPABASE_SERVICE_KEY"]
-BATCH_SIZE = 500
+BATCH_SIZE = 100  # kept small to stay within Supabase's 30s statement timeout
 
 sb = create_client(SUPABASE_URL, SUPABASE_KEY)
 
@@ -96,11 +96,11 @@ else:
 
 
 # ============================================================
-# STEP 2: Stream all NDJSON — collect artists + build artwork rows
+# STEP 2: Pass 1 — collect artists (small, fits in memory)
 # ============================================================
-print("\n[2/3] Streaming artworks, collecting artists...")
+print("\n[2a/3] Pass 1: collecting artists from all ndjson files...")
 
-ndjson_paths = (
+ndjson_paths = sorted(
     glob.glob("output/wikidata/artworks/*.ndjson")
     + glob.glob("output/wikidata/artworks.ndjson")
     + glob.glob("output/met/artworks.ndjson")
@@ -108,12 +108,12 @@ ndjson_paths = (
 print(f"  Found {len(ndjson_paths)} ndjson files")
 
 artists_seen: dict[str, dict] = {}
-artwork_rows: list[dict] = []
+total_lines = 0
 skipped = 0
 
 for path in ndjson_paths:
     with open(path) as f:
-        for line in tqdm(f, desc=f"  {Path(path).name}", leave=False):
+        for line in f:
             line = line.strip()
             if not line:
                 continue
@@ -122,21 +122,10 @@ for path in ndjson_paths:
             except json.JSONDecodeError:
                 skipped += 1
                 continue
-
-            if not a.get("id") or not a.get("title"):
-                skipped += 1
-                continue
-
-            inst = a.get("institution") or {}
-            inst_id = inst.get("id") or inst.get("wikidata_qid")
-            if not is_valid_qid(inst_id):
-                skipped += 1
-                continue
-
+            total_lines += 1
             artist = a.get("artist") or {}
             artist_qid = artist.get("wikidata_qid")
             artist_name = artist.get("display_name") or artist.get("name")
-
             if is_valid_qid(artist_qid) and artist_qid not in artists_seen:
                 if artist_name and not artist_name.startswith("http"):
                     artists_seen[artist_qid] = {
@@ -148,19 +137,60 @@ for path in ndjson_paths:
                             if is_valid_qid(artist.get("student_of_qid")) else None,
                     }
 
-            if not is_valid_qid(artist_qid):
+print(f"  Scanned {total_lines} records → {len(artists_seen)} unique artists (skipped {skipped})")
+
+
+# ============================================================
+# STEP 3a: Insert artists — pass 1 (no teacher links)
+# ============================================================
+print(f"\n[2b/3] Upserting {len(artists_seen)} artists (no teacher links)...")
+artists_no_teacher = [{**a, "student_of_qid": None} for a in artists_seen.values()]
+for chunk in tqdm(list(chunked(artists_no_teacher, BATCH_SIZE)), desc="  Artists"):
+    upsert_batch("artists", chunk, conflict_col="wikidata_qid")
+
+
+# ============================================================
+# STEP 3b: Stream artworks file-by-file and upsert (never loads all into memory)
+# ============================================================
+print(f"\n[3/3] Upserting artworks (streaming file-by-file)...")
+total_written = 0
+
+for path in tqdm(ndjson_paths, desc="  Files"):
+    batch: list[dict] = []
+    with open(path) as f:
+        for line in f:
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                a = json.loads(line)
+            except json.JSONDecodeError:
+                continue
+
+            if not a.get("id") or not a.get("title"):
+                continue
+
+            inst = a.get("institution") or {}
+            inst_id = inst.get("id") or inst.get("wikidata_qid")
+            if not is_valid_qid(inst_id):
+                continue
+
+            artist = a.get("artist") or {}
+            artist_qid = artist.get("wikidata_qid")
+            artist_name = artist.get("display_name") or artist.get("name")
+            if not is_valid_qid(artist_qid) or artist_qid not in artists_seen:
                 artist_qid = None
 
             date = a.get("date") or {}
             classification = a.get("classification") or {}
             images = a.get("images") or {}
 
-            artwork_rows.append({
+            batch.append({
                 "id": a["id"],
                 "source": a.get("source", "unknown"),
-                "source_id": a.get("source_id", ""),
+                "source_id": str(a.get("source_id", "")),
                 "title": a["title"][:500],
-                "artist_qid": artist_qid if is_valid_qid(artist_qid) and artist_qid in artists_seen else None,
+                "artist_qid": artist_qid,
                 "artist_name": artist_name if artist_name and not artist_name.startswith("http") else None,
                 "institution_id": inst_id,
                 "year_start": date.get("year_start"),
@@ -176,25 +206,16 @@ for path in ndjson_paths:
                 "license": a.get("license", "CC0"),
             })
 
-print(f"  Collected {len(artwork_rows)} artworks, {len(artists_seen)} artists (skipped {skipped})")
+            if len(batch) >= BATCH_SIZE:
+                upsert_batch("artworks", batch)
+                total_written += len(batch)
+                batch = []
 
+    if batch:
+        upsert_batch("artworks", batch)
+        total_written += len(batch)
 
-# ============================================================
-# STEP 3a: Insert artists — pass 1 (no teacher links, avoids self-FK violation)
-# ============================================================
-print(f"\n[3/3] Migrating {len(artists_seen)} artists...")
-
-artists_no_teacher = [{**a, "student_of_qid": None} for a in artists_seen.values()]
-for chunk in tqdm(list(chunked(artists_no_teacher, BATCH_SIZE)), desc="  Pass 1 (artists)"):
-    upsert_batch("artists", chunk, conflict_col="wikidata_qid")
-
-
-# ============================================================
-# STEP 3b: Insert artworks (artists + institutions already exist)
-# ============================================================
-print(f"\n  Inserting {len(artwork_rows)} artworks...")
-for chunk in tqdm(list(chunked(artwork_rows, BATCH_SIZE)), desc="  Artworks"):
-    upsert_batch("artworks", chunk)
+print(f"  Upserted {total_written} artworks total")
 
 
 # ============================================================
