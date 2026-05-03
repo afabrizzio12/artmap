@@ -28,6 +28,8 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Check if ingestion is already complete
         id: check
@@ -78,13 +80,13 @@ jobs:
           LIMIT="${{ github.event.inputs.daily_limit || '5000' }}"
           python scripts/ingest_wikidata.py --daily-limit $LIMIT
 
-      - name: Commit ingest state
+      - name: Commit updated data
         if: steps.check.outputs.completed == 'false' && github.event.inputs.build_index != 'true'
         run: |
           git config user.name "artmap-bot"
           git config user.email "artmap-bot@users.noreply.github.com"
-          git add output/wikidata/ingest_state.json
-          git diff --cached --quiet || git commit -m "chore: Wikidata ingest state $(date -u +'%Y-%m-%d')"
+          git add output/wikidata/artworks/ output/wikidata/ingest_state.json
+          git diff --cached --quiet || git commit -m "chore: Wikidata ingest $(date -u +'%Y-%m-%d')"
           git pull --rebase origin main
           git push
 
