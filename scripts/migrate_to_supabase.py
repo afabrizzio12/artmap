@@ -29,7 +29,7 @@ load_dotenv()
 
 SUPABASE_URL = os.environ["SUPABASE_URL"]
 SUPABASE_KEY = os.environ["SUPABASE_SERVICE_KEY"]
-BATCH_SIZE = 100  # kept small to stay within Supabase's 30s statement timeout
+BATCH_SIZE = 300  # authenticator timeout is 30s; 300-row upserts complete in ~5-10s
 
 sb = create_client(SUPABASE_URL, SUPABASE_KEY)
 
