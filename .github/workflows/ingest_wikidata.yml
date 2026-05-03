@@ -54,9 +54,6 @@ jobs:
       - name: Build institution index (one-time setup)
         if: github.event.inputs.build_index == 'true'
         timeout-minutes: 30
-        env:
-          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
         run: python scripts/ingest_wikidata.py --build-index
 
       - name: Commit institution index
@@ -73,9 +70,6 @@ jobs:
         if: steps.check.outputs.completed == 'false' && github.event.inputs.build_index != 'true'
         timeout-minutes: 290
         continue-on-error: true
-        env:
-          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
         run: |
           LIMIT="${{ github.event.inputs.daily_limit || '5000' }}"
           python scripts/ingest_wikidata.py --daily-limit $LIMIT

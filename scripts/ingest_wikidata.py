@@ -52,21 +52,6 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 import requests
-from dotenv import load_dotenv
-
-load_dotenv()
-
-# Supabase — optional; enabled when env vars are present
-_sb = None
-def _get_supabase():
-    global _sb
-    if _sb is None:
-        url = os.environ.get("SUPABASE_URL")
-        key = os.environ.get("SUPABASE_SERVICE_KEY")
-        if url and key:
-            from supabase import create_client
-            _sb = create_client(url, key)
-    return _sb
 
 # ---------------------------------------------------------------------------
 # Config
@@ -484,35 +469,8 @@ def _to_artwork_row(a: dict) -> dict:
     }
 
 
-_SB_BATCH = 500
-
-
-def _sb_upsert(table: str, rows: list, conflict_col: str = "id") -> None:
-    sb = _get_supabase()
-    if not sb or not rows:
-        return
-    for i in range(0, len(rows), _SB_BATCH):
-        chunk = rows[i : i + _SB_BATCH]
-        try:
-            sb.table(table).upsert(chunk, on_conflict=conflict_col).execute()
-        except Exception as e:
-            log.warning(f"  Supabase upsert failed on {table}: {e}")
-
-
-def _upsert_institution(inst: dict) -> None:
-    _sb_upsert("institutions", [{
-        "id": inst["qid"],
-        "name": inst["name"],
-        "wikidata_qid": inst["qid"],
-        "country": inst.get("country"),
-        "city": inst.get("city"),
-        "lat": inst.get("lat"),
-        "lng": inst.get("lng"),
-    }])
-
-
 def write_institution_artworks(qid: str, artworks: list[dict], mode: str = "a") -> None:
-    """Write artworks for one institution to its own ndjson file and upsert to Supabase."""
+    """Write artworks for one institution to its own ndjson file."""
     if not artworks:
         return
     ARTWORKS_DIR.mkdir(parents=True, exist_ok=True)
@@ -520,28 +478,6 @@ def write_institution_artworks(qid: str, artworks: list[dict], mode: str = "a") 
     with open(path, mode) as f:
         for aw in artworks:
             f.write(json.dumps(aw) + "\n")
-
-    # Supabase: upsert artists first (avoids FK violation on artworks.artist_qid)
-    artists: dict[str, dict] = {}
-    for a in artworks:
-        artist = a.get("artist") or {}
-        aqid = artist.get("wikidata_qid")
-        aname = artist.get("display_name") or artist.get("name")
-        if _is_valid_qid(aqid) and aqid not in artists and aname and not aname.startswith("http"):
-            artists[aqid] = {
-                "wikidata_qid": aqid,
-                "name": aname,
-                "display_name": aname,
-                "nationality": artist.get("nationality"),
-                "student_of_qid": artist.get("student_of_qid")
-                    if _is_valid_qid(artist.get("student_of_qid")) else None,
-            }
-    if artists:
-        _sb_upsert("artists", list(artists.values()), conflict_col="wikidata_qid")
-
-    # Upsert artworks
-    rows = [_to_artwork_row(a) for a in artworks]
-    _sb_upsert("artworks", rows)
 
 
 def migrate_legacy_ndjson() -> None:
@@ -613,16 +549,6 @@ def main():
         institutions = build_institution_index()
         save_institutions(institutions)
         log.info(f"Saved {len(institutions)} institutions to {INSTITUTIONS_FILE}")
-        # Mirror to Supabase
-        inst_rows = [
-            {"id": i["qid"], "name": i["name"], "wikidata_qid": i["qid"],
-             "country": i.get("country"), "city": i.get("city"),
-             "lat": i.get("lat"), "lng": i.get("lng")}
-            for i in institutions
-        ]
-        _sb_upsert("institutions", inst_rows)
-        if _get_supabase():
-            log.info(f"Upserted {len(inst_rows)} institutions to Supabase")
         return
 
     # ------------------------------------------------------------------
