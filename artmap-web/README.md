@@ -1,36 +1,86 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# ArtMap — Web
 
-## Getting Started
+The frontend for [ArtMap](../README.md), a global cultural atlas indexing every
+museum, artist, and artwork on earth.
 
-First, run the development server:
+## Stack
+
+- **Next.js 16** (App Router)
+- **React 19**
+- **TypeScript** (strict)
+- **Tailwind CSS v4** (CSS-first config — see `app/globals.css`)
+- **MapLibre GL** + **PMTiles** + **Protomaps** (map rendering)
+- **Supabase** (data layer)
+
+## Getting started
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+The app runs on `http://localhost:3000`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Routes
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| Path | What it is |
+|---|---|
+| `/` | Homepage (placeholder) |
+| `/map` | The main map screen |
+| `/design-system` | Live reference for every component and token |
 
-## Learn More
+## Design system
 
-To learn more about Next.js, take a look at the following resources:
+ArtMap has a documented design system. Visit `/design-system` in the running
+app to see every component, every state, and every token rendered live. Use it
+as the source of truth when designing or implementing screens.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+The design brief (`../artmap-brief.md`, when present) is the narrative
+companion. It explains the relationship taxonomy, the anti-disorientation
+system, the never-empty fallback rules, and the strategic intent behind
+the visual decisions.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Working with this codebase
 
-## Deploy on Vercel
+If you are an AI assistant (Claude Code, Claude Design), read [`CLAUDE.md`](./CLAUDE.md)
+before making changes. It documents the conventions, the hard rules, and the
+Next.js 16 / Tailwind v4 specifics that differ from older patterns.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Commands
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```bash
+npm run dev      # Dev server on localhost:3000
+npm run build    # Production build
+npm run start    # Start the production server
+npm run lint     # ESLint
+npm run format   # Prettier (writes changes)
+```
+
+## Project structure
+
+```
+app/
+├── components/
+│   ├── ui/         ← generic primitives (Button, Chip, Card)
+│   ├── artmap/     ← ArtMap-specific (PolaroidCard, RelationshipCard, ...)
+│   └── layout/     ← Sidebar, Breadcrumb, BackPill
+├── design-system/  ← /design-system route
+├── map/            ← /map route + map components
+├── globals.css     ← all design tokens (Tailwind v4 @theme)
+├── layout.tsx      ← root layout, loads DM Sans
+└── page.tsx
+lib/
+└── supabase.ts
+```
+
+## Tokens
+
+All design tokens (colors, type scale, radii) are defined in
+`app/globals.css` inside the `@theme` block. **There is no `tailwind.config.ts`** —
+Tailwind v4 reads `@theme` directly from CSS.
+
+To add a token, edit `globals.css`. It becomes a Tailwind utility automatically.
+
+## License
+
+Private project. Bootstrapped by [@afabrizzio12](https://github.com/afabrizzio12).
